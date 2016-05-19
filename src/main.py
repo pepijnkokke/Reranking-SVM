@@ -5,10 +5,14 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import with_statement
 
+
+import collections
 import gzip
+import nltk
 import os
 import pickle
 import plf_parser
+import spacy
 
 
 DATA_DIR         = os.path.abspath(
@@ -26,3 +30,39 @@ TEST_BEST_PARTS  = [os.path.join(DATA_DIR,'nlp2-test.1000best.gz'+part)
 TEST_DE          = os.path.join(DATA_DIR,'nlp2-test.de.gz')
 TEST_EN_PW       = os.path.join(DATA_DIR,'nlp2-test.en.pw.plf-100.gz')
 TEST_EN_S        = os.path.join(DATA_DIR,'nlp2-test.en.s.gz')
+
+
+print("Loading SpaCy...")
+en_nlp = spacy.load('en')
+de_nlp = spacy.load('de')
+
+
+en_s = u'Hello, world. Here are two sentences.'
+de_s = u'Ich bin ein Berliner.'
+
+
+def pos_feature(s,nlp):
+    """
+    Compute the POS feature vector given a sentence and an instance of spaCy.
+    The POS feature vector is a vector which indicates, per POS-tag of the
+    language, what ratio of the words in the sentence have this POS-tag.
+
+    s  : input sentence
+    nlp: instance of spaCy nlp
+    """
+    doc       = nlp(s,tag=True,parse=False,entity=False)
+    pos_count = collections.Counter([token.tag_ for token in doc])
+    return map(lambda tag: pos_count[tag] / len(doc), nlp.tagger.tag_names)
+
+
+def BLEU(reference,candidate,n):
+    """
+    Compute the BLEU score for a given candidate sentence, with respect to a
+    given reference sentence.
+
+    reference: the reference translation
+    candidate: the candidate translation
+    n        : the size of the ngrams
+    """
+    return float(
+        nltk.translate.bleu_score.modified_precision([reference],candidate,n=n))
