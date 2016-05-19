@@ -3,3 +3,4 @@ data/nlp2-dev.1000best.gz
 data/nlp2-test.1000best.gz
 *.pyc
 __pycache__
+.ipynb_checkpoints/

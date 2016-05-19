@@ -41,6 +41,11 @@ en_s = u'Hello, world. Here are two sentences.'
 de_s = u'Ich bin ein Berliner.'
 
 
+doc = de_nlp(de_s)
+for tok in doc:
+    print(tok.vector)
+
+
 def pos_feature(s,nlp):
     """
     Compute the POS feature vector given a sentence and an instance of spaCy.
@@ -51,7 +56,7 @@ def pos_feature(s,nlp):
     nlp: instance of spaCy nlp
     """
     doc       = nlp(s,tag=True,parse=False,entity=False)
-    pos_count = collections.Counter([token.tag_ for token in doc])
+    pos_count = collections.Counter([tok.tag_ for tok in doc])
     return map(lambda tag: pos_count[tag] / len(doc), nlp.tagger.tag_names)
 
 
