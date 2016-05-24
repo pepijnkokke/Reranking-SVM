@@ -26,6 +26,7 @@ source .env/bin/activate
 pip install spacy
 pip install jupyter
 pip install nltk
+pip install scipy
 pip install sklearn
 
 # download language model data
