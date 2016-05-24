@@ -12,6 +12,8 @@ Other assignments
 Getting started
 ------
 
+First expand all files in `data`.
+
 To setup the development and running environment execute the following commands:
 
 ```bash
@@ -33,4 +35,6 @@ pip install sklearn
 python -m spacy.en.download
 python -m spacy.de.download
 ```
+
+Then just run `jupyter notebook` to start the notebook.
 
