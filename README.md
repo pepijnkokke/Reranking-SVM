@@ -14,7 +14,7 @@ Getting started
 
 To setup the development and running environment execute the following commands:
 
-```
+```bash
 # make sure you are using a recent pip/virtualenv version
 python -m pip install -U pip virtualenv
 
@@ -23,7 +23,10 @@ virtualenv .env
 source .env/bin/activate
 
 # install dependancies in the virtual environment
-pip install spacy jupyter nltk
+pip install spacy
+pip install jupyter
+pip install nltk
+pip install sklearn
 
 # download language model data
 python -m spacy.en.download
