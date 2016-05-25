@@ -11,14 +11,14 @@ import data
 import pro
 import evaluation
 
-(dev_inputs, dev_references, dev_candidates) = data.load_dev(limit=100)
+(dev_inputs, dev_references, dev_candidates) = data.load_dev()
+(test_inputs, test_references, test_candidates) = data.load_test()
 
-(train_x, train_y) = pro.pro(dev_inputs, dev_references, dev_candidates, sample_size=10)
+(train_x, train_y) = pro.pro(dev_inputs, dev_references, dev_candidates, sample_size=100)
 
+print("Training classifier")
 classifier = svm.LinearSVC()
 classifier.fit(train_x, train_y)
-
-(test_inputs, test_references, test_candidates) = data.load_test(limit=25)
 
 # Small test for the classifier
 (test_x, test_y) = pro.pro(test_inputs, test_references, test_candidates, sample_size=10)

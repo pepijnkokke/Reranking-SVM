@@ -6,6 +6,7 @@ from __future__ import with_statement
 
 import metrics
 import random
+import sys
 
 
 def training_label(reference, candidate1, candidate2):
@@ -32,6 +33,10 @@ def pro(inputs, references, candidates, sample_size=100):
 
     for i, inp in enumerate(inputs):
 
+        if i % 100:
+            sys.stdout.write("\rPro %6.2f%%" % ((100 * i) / float(len(inputs))))
+            sys.stdout.flush()
+
         candidate = candidates[i]
         reference = references[i]
 
@@ -44,5 +49,7 @@ def pro(inputs, references, candidates, sample_size=100):
 
             x.append(feature_vector(inp, candidate[j1], candidate[j2]))
             y.append(training_label(reference, candidate[j1], candidate[j2]))
+
+    print("\rPro 100.00%%")
 
     return x, y
