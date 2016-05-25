@@ -30,6 +30,7 @@ pip install jupyter
 pip install nltk
 pip install scipy
 pip install sklearn
+pip install msgpack-python
 
 # download language model data
 python -m spacy.en.download
