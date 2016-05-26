@@ -15,4 +15,7 @@ def bleu(reference, candidate, n=4):
     reference: the reference translation
     candidate: the candidate translation
     """
-    return float(modified_precision([reference], candidate, n=n))
+    try:
+        return float(modified_precision([reference], candidate, n=n))
+    except ZeroDivisionError as error:
+        return 0
