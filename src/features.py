@@ -58,5 +58,12 @@ def pos_feature(s, nlp, n=1, simple_pos=True):
     pos_sible = itertools.combinations(pos_sible, n)
 
     pos_count = collections.Counter(pos_tags)
-    pos_count = map(lambda tag: pos_count[tag] / len(pos_tags), pos_sible)
+
+    def scalar(tag):
+        if len(pos_tags) > 0:
+            return pos_count[tag] / len(pos_tags)
+        else:
+            return 0
+
+    pos_count = map(lambda tag: scalar(tag), pos_sible)
     return pos_count

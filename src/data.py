@@ -10,7 +10,6 @@ import features
 import msgpack
 import sys
 
-
 DATA_DIR = os.path.abspath(os.path.join('..', 'data'))
 BASELINE_WEIGHTS = os.path.join(DATA_DIR, 'baseline.weights')
 DEV_BEST = os.path.join(DATA_DIR, 'nlp2-dev.1000best')
@@ -29,7 +28,6 @@ if not os.path.isdir(OUT_DIR):
 
 
 def read(input_file, reference_file, candidates_file, limit):
-
     features.en_nlp()
 
     with open(input_file, 'r') as f:
@@ -177,9 +175,9 @@ def parse_candidate_line(line):
 
     # Parse a feature vector string into a dictionary.
     feature_vector = re.split(r'([A-Za-z]+0?)=', feature_vector)
-    feature_names  = feature_vector[1::2]
-    feature_values = map(lambda s: map(float,s.strip().split()), feature_vector[2::2])
-    feature_map    = dict(zip(feature_names,feature_values))
+    feature_names = feature_vector[1::2]
+    feature_values = map(lambda s: map(float, s.strip().split()), feature_vector[2::2])
+    feature_map = dict(zip(feature_names, feature_values))
 
     # Parse a score as a float.
     score = float(score)
@@ -188,5 +186,3 @@ def parse_candidate_line(line):
     # alignments = map(lambda s: tuple(map(int,s.split('-'))), alignments.strip().split(' '))
 
     return i, target, feature_map, score
-
-
