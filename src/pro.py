@@ -7,6 +7,7 @@ from __future__ import with_statement
 import metrics
 import random
 import sys
+import msgpack
 
 
 def training_label(reference, candidate1, candidate2):
@@ -50,6 +51,6 @@ def pro(inputs, references, candidates, sample_size=100):
             x.append(feature_vector(inp, candidate[j1], candidate[j2]))
             y.append(training_label(reference, candidate[j1], candidate[j2]))
 
-    print("\rPro 100.00%%")
+    print("\rPro 100.00%")
 
     return x, y

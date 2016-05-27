@@ -37,7 +37,7 @@ def read(input_file, reference_file, candidates_file, limit):
                 sys.stdout.write("\rInputs %6.2f%%" % ((100 * i) / float(limit)))
                 sys.stdout.flush()
             inputs.append(parse_input(f.readline()))
-        print("\rInputs 100.00%%")
+        print("\rInputs 100.00%")
 
     with open(reference_file, 'r') as f:
         references = [f.readline().strip(' \t\n\r') for i in range(0, limit)]
@@ -65,12 +65,12 @@ def read(input_file, reference_file, candidates_file, limit):
             if i > limit:
                 break
 
-        print("\rCandidates 100.00%%")
+        print("\rCandidates 100.00%")
 
     return inputs, references, candidates
 
 
-def load_dev(limit=2937):
+def load_dev(limit=2900):
     dump = os.path.join(OUT_DIR, 'dev.out')
     if os.path.isfile(dump):
         with open(dump, 'r') as stream:
@@ -111,10 +111,10 @@ def parse_input(line):
     decoded_source = source.decode('utf-8')
 
     pos_features = features.pos_feature(decoded_source, features.en_nlp())
-    pos_bigram_features = features.pos_feature(decoded_source, features.en_nlp(), n=2)
-    representation_feature = features.en_nlp()(decoded_source).vector.tolist()
+    # pos_bigram_features = features.pos_feature(decoded_source, features.en_nlp(), n=2)
+    # representation_feature = features.en_nlp()(decoded_source).vector.tolist()
 
-    feature_vector = pos_features + pos_bigram_features + representation_feature
+    feature_vector = pos_features
 
     return source, feature_vector
 
@@ -129,10 +129,10 @@ def parse_candidate(line):
 
     features_from_map = sum(feature_map.values(), [])
     pos_features = features.pos_feature(decoded_target, features.de_nlp())
-    pos_bigram_features = features.pos_feature(decoded_target, features.de_nlp(), n=2)
-    representation_feature = features.de_nlp()(decoded_target).vector.tolist()
+    # pos_bigram_features = features.pos_feature(decoded_target, features.de_nlp(), n=2)
+    # representation_feature = features.de_nlp()(decoded_target).vector.tolist()
 
-    feature_vector = features_from_map + pos_features + pos_bigram_features + representation_feature
+    feature_vector = [score] + features_from_map + pos_features
 
     return i, target, feature_vector
 
