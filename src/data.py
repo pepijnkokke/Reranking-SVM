@@ -71,7 +71,7 @@ def read(input_file, reference_file, candidates_file, limit):
 
 
 def load_dev(limit=2900):
-    dump = os.path.join(OUT_DIR, 'dev.out')
+    dump = os.path.join(OUT_DIR, 'raw-dev-%d.out' % limit)
     if os.path.isfile(dump):
         with open(dump, 'r') as stream:
             print('Loading processed dev data')
@@ -87,7 +87,7 @@ def load_dev(limit=2900):
 
 
 def load_test(limit=2107):
-    dump = os.path.join(OUT_DIR, 'test.out')
+    dump = os.path.join(OUT_DIR, 'raw-test-%d.out' % limit)
     if os.path.isfile(dump):
         with open(dump, 'r') as stream:
             print('Loading processed test data')
@@ -111,10 +111,10 @@ def parse_input(line):
     decoded_source = source.decode('utf-8')
 
     pos_features = features.pos_feature(decoded_source, features.en_nlp())
-    # pos_bigram_features = features.pos_feature(decoded_source, features.en_nlp(), n=2)
+    pos_bigram_features = features.pos_feature(decoded_source, features.en_nlp(), n=2)
     # representation_feature = features.en_nlp()(decoded_source).vector.tolist()
 
-    feature_vector = pos_features
+    feature_vector = pos_features + pos_bigram_features
 
     return source, feature_vector
 
@@ -129,10 +129,10 @@ def parse_candidate(line):
 
     features_from_map = sum(feature_map.values(), [])
     pos_features = features.pos_feature(decoded_target, features.de_nlp())
-    # pos_bigram_features = features.pos_feature(decoded_target, features.de_nlp(), n=2)
+    pos_bigram_features = features.pos_feature(decoded_target, features.de_nlp(), n=2)
     # representation_feature = features.de_nlp()(decoded_target).vector.tolist()
 
-    feature_vector = [score] + features_from_map + pos_features
+    feature_vector = [score] + features_from_map + pos_features + pos_bigram_features
 
     return i, target, feature_vector
 

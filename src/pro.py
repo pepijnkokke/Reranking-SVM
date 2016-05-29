@@ -16,8 +16,7 @@ def training_label(reference, candidate1, candidate2):
 
     if metrics.bleu(reference, target1) > metrics.bleu(reference, target2):
         return 1
-
-    return 0
+    return -1
 
 
 def feature_vector(input, candidate1, candidate2):
