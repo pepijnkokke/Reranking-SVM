@@ -4,12 +4,12 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import with_statement
 
-from sklearn import metrics, preprocessing
+from sklearn import metrics
 from sklearn.svm import LinearSVC
 from sklearn.svm import SVC
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.neural_network import MLPClassifier
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import Normalizer
 from time import time
 
 import numpy as np
@@ -17,7 +17,8 @@ import data
 import pro
 import evaluation
 import os
-import msgpack
+
+
 from sklearn.externals import joblib
 
 
@@ -59,15 +60,35 @@ def train_classifier(get_classifier, x, y, name='classifier'):
     return classifier
 
 
-def test_classifier(classifier, x, test_y):
+def test_classifier(classifier, x, test_y, inputs, references, candidates, normalizer, pca):
 
     print('Testing classifier')
     t0 = time()
     pred_y = classifier.predict(x)
     score = metrics.accuracy_score(test_y, pred_y)
     print('Score: %0.5f' % score)
-    print("done in %0.3fs" % (time() - t0))
 
+    feature_vector = [pro.feature_vector(inputs[0], candidates[0][0], candidates[0][500])]
+    if normalizer is not None:
+        feature_vector = normalizer.transform(feature_vector)
+    if pca is not None:
+        feature_vector = pca.transform(feature_vector)
+
+    prediction1 = classifier.predict(feature_vector)
+    print('Prediction 1 should be 1: %d' % prediction1[0])
+
+    feature_vector = [pro.feature_vector(inputs[0], candidates[0][500], candidates[0][500])]
+    if normalizer is not None:
+        feature_vector = normalizer.transform(feature_vector)
+    if pca is not None:
+        feature_vector = pca.transform(feature_vector)
+
+    prediction1 = classifier.predict(feature_vector)
+    print('Prediction 1 should be -1: %d' % prediction1[0])
+
+    print(metrics.classification_report(test_y, pred_y))
+
+    print("done in %0.3fs" % (time() - t0))
 
 def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_size=1000, test_input_size=2000,
                           test_sample_size=5, pos=True, extended_pos=True, bigrams=True, vector=True):
@@ -78,6 +99,13 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
                              (n_components, test_input_size, test_sample_size, pos, extended_pos, bigrams, vector))
     path_pca = os.path.join(data.OUT_DIR, 'pca-%d-%d-%d-%i%i%i%i.out' %
                             (n_components, train_input_size, train_sample_size, pos, extended_pos, bigrams, vector))
+    path_norm = os.path.join(data.OUT_DIR, 'norm-%d-%d-%d-%i%i%i%i.out' %
+                            (n_components, train_input_size, train_sample_size, pos, extended_pos, bigrams, vector))
+
+    if os.path.isfile(path_norm):
+        normalizer = joblib.load(path_norm)
+    else:
+        normalizer = Normalizer(copy=True)
 
     if os.path.isfile(path_pca):
         pca = joblib.load(path_pca)
@@ -96,15 +124,17 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
 
         X_train = np.array(X_train)
 
-        print("Extracting the top %d features from %d features" % (n_components, len(X_train[0])))
+        print("Normalizing data")
         t0 = time()
-        pca.fit(X_train)
-        joblib.dump(pca, path_pca)
+        normalizer.fit(X_train)
+        X_train_norm = normalizer.transform(X_train)
         print("done in %0.3fs" % (time() - t0))
 
-        print("Projecting the training data on the orthonormal basis")
+        print("Extracting the top %d features from %d features" % (n_components, len(X_train[0])))
         t0 = time()
-        X_train_pca = pca.transform(X_train)
+        pca.fit(X_train_norm)
+        joblib.dump(pca, path_pca)
+        X_train_pca = pca.transform(X_train_norm)
         print("done in %0.3fs" % (time() - t0))
 
         t0 = time()
@@ -125,9 +155,15 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
         (test_inputs, test_references, test_candidates) = data.load_test(test_input_size, pos, extended_pos, bigrams, vector)
         (X_test, y_test) = pro.pro(test_inputs, test_references, test_candidates, sample_size=test_sample_size)
 
+        print("Normalizing data")
+        t0 = time()
+        normalizer.fit(X_test)
+        X_test_norm = normalizer.transform(X_test)
+        print("done in %0.3fs" % (time() - t0))
+
         print("Projecting the test data on the orthonormal basis")
         t0 = time()
-        X_test_pca = pca.transform(X_test)
+        X_test_pca = pca.transform(X_test_norm)
         print("done in %0.3fs" % (time() - t0))
 
         t0 = time()
@@ -138,7 +174,7 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
 
     print("Test set size: %d" % len(X_test_pca))
 
-    return X_train_pca, y_train, X_test_pca, y_test, pca, test_inputs, test_references, test_candidates
+    return X_train_pca, y_train, X_test_pca, y_test, normalizer, pca, test_inputs, test_references, test_candidates
 
 
 def run():
@@ -148,41 +184,41 @@ def run():
          lambda: MLPClassifier(hidden_layer_sizes=(30,), activation='tanh', algorithm='sgd', batch_size='auto',
                                learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
                                max_iter=1000)),
-        ('nn-simple', 50, 1000, 10, 1000, 5, True, True, True, False,
-         lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
-                       learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
-        ('nn-without-vector-250', 200, 2700, 100, 2100, 5, True, True, True, False,
-         lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
-                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
-        ('nn-with-vector-100', 200, 2700, 100, 2100, 5, True, True, True, False,
-         lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
-                       learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
-        ('nn-with-vector-250', 200, 2700, 100, 2100, 5, True, True, True, False,
-         lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
-                       learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
-        ('nn-with-vector-500', 200, 2700, 100, 2100, 5, True, True, True, False,
-         lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
-                       learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
-        ('nn-with-vector-250-smaller-reduction', 1000, 2700, 100, 2100, 5, True, True, True, False,
-         lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
-                               learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
-                               max_iter=1000)),
-        ('svm-liblin', 100, 2700, 100, 2100, 5, True, True, True, True,
-         lambda: LinearSVC(C=0.025, verbose=True, max_iter=1000)),
-        ('svm-libsvm', 100, 2700, 100, 2100, 5, True, True, True, True,
-         lambda: SVC(kernel='linear', C=0.025, verbose=True))
+        # ('nn-simple', 50, 1000, 10, 1000, 5, True, True, True, False,
+        #  lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
+        #                learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
+        # ('nn-without-vector-250', 200, 2700, 100, 2100, 5, True, True, True, False,
+        #  lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
+        #                 learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
+        # ('nn-with-vector-100', 200, 2700, 100, 2100, 5, True, True, True, False,
+        #  lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
+        #                learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
+        # ('nn-with-vector-250', 200, 2700, 100, 2100, 5, True, True, True, False,
+        #  lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
+        #                learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
+        # ('nn-with-vector-500', 200, 2700, 100, 2100, 5, True, True, True, False,
+        #  lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
+        #                learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
+        # ('nn-with-vector-250-smaller-reduction', 1000, 2700, 100, 2100, 5, True, True, True, False,
+        #  lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
+        #                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
+        #                        max_iter=1000)),
+        # ('svm-liblin', 100, 2700, 100, 2100, 5, True, True, True, True,
+        #  lambda: LinearSVC(C=0.025, verbose=True, max_iter=1000)),
+        # ('svm-libsvm', 100, 2700, 100, 2100, 5, True, True, True, True,
+        #  lambda: SVC(kernel='linear', C=0.025, verbose=True))
     ]
 
     for name, n_components, train_input_size, train_sample_size, test_input_size, \
       test_sample_size, pos, extended_pos, bigrams, vector, classifier in matrix:
 
-        (X_train, y_train, X_test, y_test, pca, test_inputs, test_references, test_candidates) = \
+        (X_train, y_train, X_test, y_test, normalizer, pca, test_inputs, test_references, test_candidates) = \
             get_preprocessed_data(n_components, train_input_size, train_sample_size, test_input_size, \
                 test_sample_size, pos, extended_pos, bigrams, vector)
 
         classifier = train_classifier(classifier, X_train, y_train, name)
-        test_classifier(classifier, X_test, y_test)
-        evaluation.print_evaluation(test_inputs, test_references, test_candidates, classifier, pca, limit=100)
+        test_classifier(classifier, X_test, y_test, test_inputs, test_references, test_candidates, normalizer, pca)
+        evaluation.print_evaluation(test_inputs, test_references, test_candidates, classifier, normalizer, pca, limit=25)
 
 
 if __name__ == "__main__":

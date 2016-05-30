@@ -29,7 +29,7 @@ def feature_vector(input, candidate1, candidate2):
 
 def pro(inputs, references, candidates, sample_size=100):
 
-    dem1 = len(inputs) * sample_size
+    dem1 = len(inputs) * sample_size * 2
     dem2 = len(candidates[0][0][2]) * 2 + len(inputs[0][1])
 
     x = np.empty((dem1, dem2), dtype=float)
@@ -54,9 +54,11 @@ def pro(inputs, references, candidates, sample_size=100):
                 j2 = random.randint(0, len(candidate) - 1)
 
             x[k] = np.array(feature_vector(inp, candidate[j1], candidate[j2]))
+            x[k + 1] = np.array(feature_vector(inp, candidate[j2], candidate[j1]))
             y[k] = training_label(reference, candidate[j1], candidate[j2])
+            y[k + 1] = training_label(reference, candidate[j2], candidate[j1])
 
-            k += 1
+            k += 2
 
     print("\rPro 100.00%")
 

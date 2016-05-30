@@ -10,7 +10,7 @@ from operator import itemgetter
 import sys
 
 
-def best_reranking(inputs, candidates, classifier, pca, limit=1000):
+def best_reranking(inputs, candidates, classifier, normalizer, pca, limit=1000):
     """
     Returns a list of the best sentences according to the reranking
     Only the top sentence is returned
@@ -34,7 +34,16 @@ def best_reranking(inputs, candidates, classifier, pca, limit=1000):
                 if k != j:
                     candidate2 = candidates[i][k]
                     classifications += 1
-                    if classifier.predict(pca.transform([pro.feature_vector(input, candidate1, candidate2)])) != [-1]:
+
+                    feature_vector = [pro.feature_vector(input, candidate1, candidate2)]
+
+                    if normalizer is not None:
+                        feature_vector = normalizer.transform(feature_vector)
+
+                    if pca is not None:
+                        feature_vector = pca.transform(feature_vector)
+
+                    if classifier.predict(feature_vector) != [-1]:
                         score += 1
 
             result = (score, candidate1[1])
@@ -62,13 +71,13 @@ def best_baseline(inputs, candidates):
     return sentences
 
 
-def print_evaluation(inputs, references, candidates, classifier, pca, limit=1000):
+def print_evaluation(inputs, references, candidates, classifier, normalizer, pca, limit=1000):
     bleu_references = [[x] for x in references]
     bleu_hypotheses_baseline = best_baseline(inputs, candidates)
 
     baseline_blue = corpus_bleu(bleu_references, bleu_hypotheses_baseline)
     print("Baseline BLEU: %0.10f" % baseline_blue)
 
-    bleu_hypotheses_reranking = best_reranking(inputs, candidates, classifier, pca, limit)
+    bleu_hypotheses_reranking = best_reranking(inputs, candidates, classifier, normalizer, pca, limit)
     reranking_blue = corpus_bleu(bleu_references, bleu_hypotheses_reranking)
     print("Reranking BLEU: %0.10f" % reranking_blue)
