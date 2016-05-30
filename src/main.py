@@ -69,9 +69,13 @@ def test_classifier(classifier, test_x, test_y, train_x, train_y, inputs, refere
     score = metrics.accuracy_score(train_y, pred_y)
     print('Score on training data: %0.5f' % score)
 
+    print(metrics.classification_report(train_y, pred_y))
+
     pred_y = classifier.predict(test_x)
     score = metrics.accuracy_score(test_y, pred_y)
     print('Score on testing: %0.5f' % score)
+
+    print(metrics.classification_report(test_y, pred_y))
 
     feature_vector = [pro.feature_vector(inputs[0], candidates[0][0], candidates[0][500])]
     if normalizer is not None:
@@ -90,8 +94,6 @@ def test_classifier(classifier, test_x, test_y, train_x, train_y, inputs, refere
 
     prediction1 = classifier.predict(feature_vector)
     print('Prediction 2 should be -1: %d' % prediction1[0])
-
-    print(metrics.classification_report(test_y, pred_y))
 
     print("done in %0.3fs" % (time() - t0))
 
