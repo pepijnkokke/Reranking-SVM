@@ -130,6 +130,12 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
     else:
         (dev_inputs, dev_references, dev_candidates) = data.load_dev(train_input_size, pos, extended_pos, bigrams, vector)
         (X_train, y_train) = pro.pro(dev_inputs, dev_references, dev_candidates, sample_size=train_sample_size)
+
+        # clear some memory
+        del dev_inputs
+        del dev_references
+        del dev_candidates
+
         print("Training set size: %d" % len(X_train))
 
         X_train = np.array(X_train)
@@ -215,19 +221,23 @@ def run():
         #  lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
         #                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
         #                        max_iter=1000)),
-        ('nn-without-vector-250', 200, 2700, 100, 2100, 5, True, True, True, False,
+        ('nn-without-vector-250-no-pca', 0, 2700, 100, 2100, 5, True, True, True, False,
+         lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
+                               learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
+                               max_iter=1000)),
+        ('nn-without-vector-250', 200, 2700, 50, 2100, 5, True, True, True, False,
          lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
                         learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
-        ('nn-with-vector-100', 200, 2700, 100, 2100, 5, True, True, True, True,
+        ('nn-with-vector-100', 200, 2700, 50, 2100, 5, True, True, True, True,
          lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
-        ('nn-with-vector-250', 200, 2700, 100, 2100, 5, True, True, True, True,
+        ('nn-with-vector-250', 200, 2700, 50, 2100, 5, True, True, True, True,
          lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
-        ('nn-with-vector-500', 250, 2700, 100, 2100, 5, True, True, True, True,
+        ('nn-with-vector-500', 250, 2700, 50, 2100, 5, True, True, True, True,
          lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
-        ('nn-with-vector-250-smaller-reduction', 1000, 2700, 100, 2100, 5, True, True, True, True,
+        ('nn-with-vector-250-smaller-reduction', 1000, 2700, 50, 2100, 5, True, True, True, True,
          lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
                                learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
                                max_iter=1000)),
@@ -235,9 +245,9 @@ def run():
          lambda: MLPClassifier(hidden_layer_sizes=(500,), activation='tanh', algorithm='sgd', batch_size='auto',
                                learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
                                max_iter=1000)),
-        ('svm-liblin', 100, 2700, 100, 2100, 5, True, True, True, True,
+        ('svm-liblin', 50, 2700, 100, 2100, 5, True, True, True, True,
          lambda: LinearSVC(C=0.025, verbose=True, max_iter=1000)),
-        ('svm-libsvm', 100, 2700, 100, 2100, 5, True, True, True, True,
+        ('svm-libsvm', 50, 2700, 100, 2100, 5, True, True, True, True,
          lambda: SVC(kernel='linear', C=0.025, verbose=True))
     ]
 
