@@ -7,7 +7,7 @@ from __future__ import with_statement
 import metrics
 import random
 import sys
-import msgpack
+import numpy as np
 
 
 def training_label(reference, candidate1, candidate2):
@@ -28,8 +28,14 @@ def feature_vector(input, candidate1, candidate2):
 
 
 def pro(inputs, references, candidates, sample_size=100):
-    x = []
-    y = []
+
+    dem1 = len(inputs) * sample_size
+    dem2 = len(candidates[0][0][2]) * 2 + len(inputs[0][1])
+
+    x = np.empty((dem1, dem2), dtype=float)
+    y = np.empty(dem1, dtype=int)
+
+    k = 0
 
     for i, inp in enumerate(inputs):
 
@@ -47,8 +53,10 @@ def pro(inputs, references, candidates, sample_size=100):
             while j1 == j2:
                 j2 = random.randint(0, len(candidate) - 1)
 
-            x.append(feature_vector(inp, candidate[j1], candidate[j2]))
-            y.append(training_label(reference, candidate[j1], candidate[j2]))
+            x[k] = np.array(feature_vector(inp, candidate[j1], candidate[j2]))
+            y[k] = training_label(reference, candidate[j1], candidate[j2])
+
+            k += 1
 
     print("\rPro 100.00%")
 

@@ -43,8 +43,10 @@ def train_classifier(get_classifier, x, y, name='classifier'):
     path = os.path.join(data.OUT_DIR, 'classifier.%s.pkl' % name)
 
     if os.path.isfile(path):
+        t0 = time()
         print('Loading classifier: %s' % name)
         classifier = joblib.load(path)
+        print("done in %0.3fs" % (time() - t0))
     else:
         t0 = time()
         print('Training classifier: %s' % name)
@@ -60,12 +62,14 @@ def train_classifier(get_classifier, x, y, name='classifier'):
 def test_classifier(classifier, x, test_y):
 
     print('Testing classifier')
+    t0 = time()
     pred_y = classifier.predict(x)
     score = metrics.accuracy_score(test_y, pred_y)
     print('Score: %0.5f' % score)
+    print("done in %0.3fs" % (time() - t0))
 
 
-def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_size=100, test_input_size=2000, test_sample_size=5):
+def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_size=1000, test_input_size=2000, test_sample_size=5):
 
     path_train = os.path.join(data.OUT_DIR, 'preprocessed-train-%d-%d-%d.out' % (n_components, train_input_size, train_sample_size))
     path_test = os.path.join(data.OUT_DIR, 'preprocessed-test-%d-%d-%d.out' % (n_components, test_input_size, test_sample_size))
@@ -77,10 +81,10 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
         pca = PCA(copy=True, n_components=n_components)
 
     if os.path.isfile(path_train):
-        with open(path_train, 'r') as stream:
-            print('Reading processed dev data')
-            (X_train_pca, y_train) = msgpack.unpack(stream, use_list=True)
-            X_train_pca = np.array(X_train_pca)
+        t0 = time()
+        print('Reading processed dev data')
+        (X_train_pca, y_train) = joblib.load(path_train)
+        print("done in %0.3fs" % (time() - t0))
     else:
         (dev_inputs, dev_references, dev_candidates) = data.load_dev(train_input_size)
         (X_train, y_train) = pro.pro(dev_inputs, dev_references, dev_candidates, sample_size=train_sample_size)
@@ -99,18 +103,19 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
         X_train_pca = pca.transform(X_train)
         print("done in %0.3fs" % (time() - t0))
 
-        with open(path_train, 'w') as stream:
-            print('Dumping processed dev data')
-            dump = (X_train_pca.tolist(), y_train)
-            msgpack.pack(dump, stream)
+        t0 = time()
+        print('Dumping processed dev data')
+        dump = (X_train_pca, y_train)
+        joblib.dump(dump, path_train)
+        print("done in %0.3fs" % (time() - t0))
 
     print("Training set size: %d" % len(X_train_pca))
 
     if os.path.isfile(path_test):
-        with open(path_test, 'r') as stream:
-            print('Reading processed test data')
-            (X_test_pca, y_test, test_inputs, test_references, test_candidates) = msgpack.unpack(stream, use_list=True)
-            X_test_pca = np.array(X_test_pca)
+        t0 = time()
+        print('Reading processed test data')
+        (X_test_pca, y_test, test_inputs, test_references, test_candidates) = joblib.load(path_test)
+        print("done in %0.3fs" % (time() - t0))
     else:
 
         (test_inputs, test_references, test_candidates) = data.load_test(test_input_size)
@@ -121,10 +126,11 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
         X_test_pca = pca.transform(X_test)
         print("done in %0.3fs" % (time() - t0))
 
-        with open(path_test, 'w') as stream:
-            print('Dumping processed test data')
-            dump = (X_test_pca.tolist(), y_test, test_inputs, test_references, test_candidates)
-            msgpack.pack(dump, stream)
+        t0 = time()
+        print('Dumping processed test data')
+        dump = (X_test_pca, y_test, test_inputs, test_references, test_candidates)
+        joblib.dump(dump, path_test)
+        print("done in %0.3fs" % (time() - t0))
 
     print("Test set size: %d" % len(X_test_pca))
 
@@ -143,8 +149,8 @@ def run():
     ]
 
     classifiers = [
-        lambda: MLPClassifier(hidden_layer_sizes=(10,), activation='tanh', algorithm='sgd', batch_size='auto',
-                      learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.00001, max_iter=1000),
+        lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
+                      learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000),
         # lambda: MLPClassifier(hidden_layer_sizes=(500,), activation='tanh', algorithm='sgd', batch_size='auto',
         #               learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.00001, max_iter=1000),
         # lambda: MLPClassifier(hidden_layer_sizes=(250,150), activation='tanh', algorithm='sgd', batch_size='auto',
