@@ -107,10 +107,13 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
     else:
         normalizer = Normalizer(copy=True)
 
-    if os.path.isfile(path_pca):
-        pca = joblib.load(path_pca)
+    if n_components == 0:
+        pca = None
     else:
-        pca = PCA(copy=True, n_components=n_components)
+        if os.path.isfile(path_pca):
+            pca = joblib.load(path_pca)
+        else:
+            pca = PCA(copy=True, n_components=n_components)
 
     if os.path.isfile(path_train):
         t0 = time()
@@ -130,12 +133,15 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
         X_train_norm = normalizer.transform(X_train)
         print("done in %0.3fs" % (time() - t0))
 
-        print("Extracting the top %d features from %d features" % (n_components, len(X_train[0])))
-        t0 = time()
-        pca.fit(X_train_norm)
-        joblib.dump(pca, path_pca)
-        X_train_pca = pca.transform(X_train_norm)
-        print("done in %0.3fs" % (time() - t0))
+        if pca is not None:
+            print("Extracting the top %d features from %d features" % (n_components, len(X_train[0])))
+            t0 = time()
+            pca.fit(X_train_norm)
+            joblib.dump(pca, path_pca)
+            X_train_pca = pca.transform(X_train_norm)
+            print("done in %0.3fs" % (time() - t0))
+        else:
+            X_train_pca = X_train_norm
 
         t0 = time()
         print('Dumping processed dev data')
@@ -161,10 +167,13 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
         X_test_norm = normalizer.transform(X_test)
         print("done in %0.3fs" % (time() - t0))
 
-        print("Projecting the test data on the orthonormal basis")
-        t0 = time()
-        X_test_pca = pca.transform(X_test_norm)
-        print("done in %0.3fs" % (time() - t0))
+        if pca is not None:
+            print("Projecting the test data on the orthonormal basis")
+            t0 = time()
+            X_test_pca = pca.transform(X_test_norm)
+            print("done in %0.3fs" % (time() - t0))
+        else:
+            X_test_pca = X_test_norm
 
         t0 = time()
         print('Dumping processed test data')
@@ -191,6 +200,10 @@ def run():
         ('nn-simple2', 80, 1000, 10, 1000, 5, True, True, True, False,
          lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
+        ('nn-simple-no-pca', 0, 1000, 10, 1000, 5, True, False, False, False,
+         lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
+                               learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
+                               max_iter=1000)),
         ('nn-without-vector-250', 200, 2700, 100, 2100, 5, True, True, True, False,
          lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
                         learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
@@ -205,6 +218,10 @@ def run():
                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
         ('nn-with-vector-250-smaller-reduction', 1000, 2700, 100, 2100, 5, True, True, True, True,
          lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
+                               learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
+                               max_iter=1000)),
+        ('nn-with-vector-500-no-pca', 0, 2700, 100, 2100, 5, True, True, True, True,
+         lambda: MLPClassifier(hidden_layer_sizes=(500,), activation='tanh', algorithm='sgd', batch_size='auto',
                                learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
                                max_iter=1000)),
         ('svm-liblin', 100, 2700, 100, 2100, 5, True, True, True, True,
