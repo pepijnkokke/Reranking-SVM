@@ -25,9 +25,10 @@ def best_reranking(inputs, candidates, references, classifier, normalizer, pca, 
 
     for i, input in enumerate(inputs):
 
-        baseline_blue = corpus_bleu(references[:i], best_baseline(inputs[:i], candidates[:i]))
-        reranking_blue = corpus_bleu(references[:i], sentences)
-        blue_diff = reranking_blue - baseline_blue
+        if i > 0:
+            baseline_blue = corpus_bleu(references[:i], best_baseline(inputs[:i], candidates[:i]))
+            reranking_blue = corpus_bleu(references[:i], sentences)
+            blue_diff = reranking_blue - baseline_blue
 
         sys.stdout.write("\rReranking %6.2f%% classifications: %d current BLEU diff: %0.5f" %
                                  ((100 * i) / float(len(inputs)), classifications, blue_diff))
