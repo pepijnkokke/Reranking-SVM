@@ -144,11 +144,11 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
 def run():
 
     matrix = [
-        ('nn-very-simple', 50, 100, 10, 100, 5, True, True, False, False,
+        ('nn-very-simple', 30, 100, 10, 100, 5, True, True, False, False,
          lambda: MLPClassifier(hidden_layer_sizes=(30,), activation='tanh', algorithm='sgd', batch_size='auto',
                                learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
                                max_iter=1000)),
-        ('nn-simple', 50, 1000, 10, 1000, 5, True, True, False, False,
+        ('nn-simple', 50, 1000, 10, 1000, 5, True, True, True, False,
          lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
         ('nn-without-vector-250', 200, 2700, 100, 2100, 5, True, True, True, False,
@@ -163,6 +163,10 @@ def run():
         ('nn-with-vector-500', 200, 2700, 100, 2100, 5, True, True, True, False,
          lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
+        ('nn-with-vector-250-smaller-reduction', 1000, 2700, 100, 2100, 5, True, True, True, False,
+         lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
+                               learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
+                               max_iter=1000)),
         ('svm-liblin', 100, 2700, 100, 2100, 5, True, True, True, True,
          lambda: LinearSVC(C=0.025, verbose=True, max_iter=1000)),
         ('svm-libsvm', 100, 2700, 100, 2100, 5, True, True, True, True,
