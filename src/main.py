@@ -69,11 +69,15 @@ def test_classifier(classifier, x, test_y):
     print("done in %0.3fs" % (time() - t0))
 
 
-def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_size=1000, test_input_size=2000, test_sample_size=5):
+def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_size=1000, test_input_size=2000,
+                          test_sample_size=5, pos=True, extended_pos=True, bigrams=True, vector=True):
 
-    path_train = os.path.join(data.OUT_DIR, 'preprocessed-train-%d-%d-%d.out' % (n_components, train_input_size, train_sample_size))
-    path_test = os.path.join(data.OUT_DIR, 'preprocessed-test-%d-%d-%d.out' % (n_components, test_input_size, test_sample_size))
-    path_pca = os.path.join(data.OUT_DIR, 'pca-%d-%d-%d.out' % (n_components, train_input_size, train_sample_size))
+    path_train = os.path.join(data.OUT_DIR, 'preprocessed-train-%d-%d-%d-%i%i%i%i.out' %
+                              (n_components, train_input_size, train_sample_size, pos, extended_pos, bigrams, vector))
+    path_test = os.path.join(data.OUT_DIR, 'preprocessed-test-%d-%d-%d-%i%i%i%i.out' %
+                             (n_components, test_input_size, test_sample_size, pos, extended_pos, bigrams, vector))
+    path_pca = os.path.join(data.OUT_DIR, 'pca-%d-%d-%d-%i%i%i%i.out' %
+                            (n_components, train_input_size, train_sample_size, pos, extended_pos, bigrams, vector))
 
     if os.path.isfile(path_pca):
         pca = joblib.load(path_pca)
@@ -86,7 +90,7 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
         (X_train_pca, y_train) = joblib.load(path_train)
         print("done in %0.3fs" % (time() - t0))
     else:
-        (dev_inputs, dev_references, dev_candidates) = data.load_dev(train_input_size)
+        (dev_inputs, dev_references, dev_candidates) = data.load_dev(train_input_size, pos, extended_pos, bigrams, vector)
         (X_train, y_train) = pro.pro(dev_inputs, dev_references, dev_candidates, sample_size=train_sample_size)
         print("Training set size: %d" % len(X_train))
 
@@ -118,7 +122,7 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
         print("done in %0.3fs" % (time() - t0))
     else:
 
-        (test_inputs, test_references, test_candidates) = data.load_test(test_input_size)
+        (test_inputs, test_references, test_candidates) = data.load_test(test_input_size, pos, extended_pos, bigrams, vector)
         (X_test, y_test) = pro.pro(test_inputs, test_references, test_candidates, sample_size=test_sample_size)
 
         print("Projecting the test data on the orthonormal basis")
@@ -138,31 +142,43 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
 
 
 def run():
-    (X_train, y_train, X_test, y_test, pca, test_inputs, test_references, test_candidates) = get_preprocessed_data()
 
-    names = [
-        "nn1",
-        # "nn2",
-        # "nn3",
-        # "svm1"
-        # "svm2"
+    matrix = [
+        ('nn-very-simple', 50, 100, 10, 100, 5, True, True, False, False,
+         lambda: MLPClassifier(hidden_layer_sizes=(30,), activation='tanh', algorithm='sgd', batch_size='auto',
+                               learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
+                               max_iter=1000)),
+        ('nn-simple', 50, 1000, 10, 1000, 5, True, True, False, False,
+         lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
+                       learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
+        ('nn-without-vector-250', 200, 2700, 100, 2100, 5, True, True, True, False,
+         lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
+                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
+        ('nn-with-vector-100', 200, 2700, 100, 2100, 5, True, True, True, False,
+         lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
+                       learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
+        ('nn-with-vector-250', 200, 2700, 100, 2100, 5, True, True, True, False,
+         lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
+                       learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
+        ('nn-with-vector-500', 200, 2700, 100, 2100, 5, True, True, True, False,
+         lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
+                       learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
+        ('svm-liblin', 100, 2700, 100, 2100, 5, True, True, True, True,
+         lambda: LinearSVC(C=0.025, verbose=True, max_iter=1000)),
+        ('svm-libsvm', 100, 2700, 100, 2100, 5, True, True, True, True,
+         lambda: SVC(kernel='linear', C=0.025, verbose=True))
     ]
 
-    classifiers = [
-        lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
-                      learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000),
-        # lambda: MLPClassifier(hidden_layer_sizes=(500,), activation='tanh', algorithm='sgd', batch_size='auto',
-        #               learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.00001, max_iter=1000),
-        # lambda: MLPClassifier(hidden_layer_sizes=(250,150), activation='tanh', algorithm='sgd', batch_size='auto',
-        #               learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.00001, max_iter=1000),
-        # lambda: LinearSVC(C=0.025, verbose=True, max_iter=1000),
-        # lambda: SVC(kernel='linear', C=0.025, verbose=True)
-    ]
+    for name, n_components, train_input_size, train_sample_size, test_input_size, \
+      test_sample_size, pos, extended_pos, bigrams, vector, classifier in matrix:
 
-    for classifier, name in zip(classifiers, names):
+        (X_train, y_train, X_test, y_test, pca, test_inputs, test_references, test_candidates) = \
+            get_preprocessed_data(n_components, train_input_size, train_sample_size, test_input_size, \
+                test_sample_size, pos, extended_pos, bigrams, vector)
+
         classifier = train_classifier(classifier, X_train, y_train, name)
         test_classifier(classifier, X_test, y_test)
-        evaluation.print_evaluation(test_inputs, test_references, test_candidates, classifier, pca, limit=25)
+        evaluation.print_evaluation(test_inputs, test_references, test_candidates, classifier, pca, limit=100)
 
 
 if __name__ == "__main__":

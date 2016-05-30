@@ -27,16 +27,28 @@ if not os.path.isdir(OUT_DIR):
     os.makedirs(OUT_DIR)
 
 
-def read(input_file, reference_file, candidates_file, limit):
+def read(input_file, reference_file, candidates_file, limit, pos=True, extended_pos=True, bigrams=True, vector=True):
     features.en_nlp()
+    """
+    Parameters
+    ----------
+    limit Limit the number of inputs parsed
+    pos Whether or not to include pos features in the feature set
+    extended_pos Whether or not to include extended pos features in the feature set
+    bigrams Whether or not to include pos bigrams in the feature set
+    vector Whether or not to include a vector representation in the feature set
 
+    Returns
+    -------
+    (inputs, references, candidates)
+    """
     with open(input_file, 'r') as f:
         inputs = []
         for i in range(0, limit):
             if i % 100:
                 sys.stdout.write("\rInputs %6.2f%%" % ((100 * i) / float(limit)))
                 sys.stdout.flush()
-            inputs.append(parse_input(f.readline()))
+            inputs.append(parse_input(f.readline(), pos, extended_pos, bigrams, vector))
         print("\rInputs 100.00%")
 
     with open(reference_file, 'r') as f:
@@ -50,7 +62,7 @@ def read(input_file, reference_file, candidates_file, limit):
         i = 0
 
         while True:
-            candidate = parse_candidate(f.readline())
+            candidate = parse_candidate(f.readline(), pos, extended_pos, bigrams, vector)
 
             if candidate[0] == i:
                 candidate_set.append(candidate)
@@ -70,15 +82,16 @@ def read(input_file, reference_file, candidates_file, limit):
     return inputs, references, candidates
 
 
-def load_dev(limit=2900):
-    dump = os.path.join(OUT_DIR, 'raw-dev-%d.out' % limit)
+def load_dev(limit=2900, pos=True, extended_pos=True, bigrams=True, vector=True):
+
+    dump = os.path.join(OUT_DIR, 'raw-dev-%d-%i%i%i%i.out' % (limit, pos, extended_pos, bigrams, vector))
     if os.path.isfile(dump):
         with open(dump, 'r') as stream:
             print('Loading processed dev data')
             loaded = msgpack.unpack(stream, use_list=False)
     else:
         print('Reading and processing dev data')
-        loaded = read(DEV_EN, DEV_DE, DEV_BEST, limit)
+        loaded = read(DEV_EN, DEV_DE, DEV_BEST, limit, pos, extended_pos, bigrams, vector)
         with open(dump, 'w') as stream:
             print('Dumping processed dev data')
             msgpack.pack(loaded, stream)
@@ -86,15 +99,15 @@ def load_dev(limit=2900):
     return loaded
 
 
-def load_test(limit=2107):
-    dump = os.path.join(OUT_DIR, 'raw-test-%d.out' % limit)
+def load_test(limit=2107, pos=True, extended_pos=True, bigrams=True, vector=True):
+    dump = os.path.join(OUT_DIR, 'raw-test-%d-%i%i%i%i.out' % (limit, pos, extended_pos, bigrams, vector))
     if os.path.isfile(dump):
         with open(dump, 'r') as stream:
             print('Loading processed test data')
             loaded = msgpack.unpack(stream, use_list=False)
     else:
         print('Reading and processing test data')
-        loaded = read(TEST_EN, TEST_DE, TEST_BEST, limit)
+        loaded = read(TEST_EN, TEST_DE, TEST_BEST, limit, pos, extended_pos, bigrams, vector)
         with open(dump, 'w') as stream:
             print('Dumping processed test data')
             msgpack.pack(loaded, stream)
@@ -102,7 +115,7 @@ def load_test(limit=2107):
     return loaded
 
 
-def parse_input(line):
+def parse_input(line, pos=True, extended_pos=True, bigrams=True, include_vector=True):
     """
     Parse a line from the inputs file into a input sentence and a feature vector
     """
@@ -110,16 +123,19 @@ def parse_input(line):
     source = line.strip(' \t\n\r')
     decoded_source = source.decode('utf-8')
 
-    pos_features = features.pos_feature(decoded_source, features.en_nlp(), False)
-    pos_bigram_features = features.pos_feature(decoded_source, features.en_nlp(), n=2)
-    representation_feature = features.en_nlp()(decoded_source).vector.tolist()
+    feature_vector = []
 
-    feature_vector = pos_features + pos_bigram_features + representation_feature
+    if pos:
+        feature_vector += features.pos_feature(decoded_source, features.de_nlp(), not extended_pos)
+    if bigrams:
+        feature_vector += features.pos_feature(decoded_source, features.de_nlp(), n=2)
+    if include_vector:
+        feature_vector += features.de_nlp()(decoded_source).vector.tolist()
 
     return source, feature_vector
 
 
-def parse_candidate(line):
+def parse_candidate(line, pos, extended_pos, bigrams, include_vector):
     """
     Parse a line from the candidate file into a target sentence and a feature vector
     """
@@ -128,11 +144,14 @@ def parse_candidate(line):
     decoded_target = target.decode('utf-8')
 
     features_from_map = sum(feature_map.values(), [])
-    pos_features = features.pos_feature(decoded_target, features.de_nlp(), False)
-    pos_bigram_features = features.pos_feature(decoded_target, features.de_nlp(), n=2)
-    representation_feature = features.de_nlp()(decoded_target).vector.tolist()
+    feature_vector = [score] + features_from_map
 
-    feature_vector = [score] + features_from_map + pos_features + pos_bigram_features + representation_feature
+    if pos:
+        feature_vector += features.pos_feature(decoded_target, features.de_nlp(), not extended_pos)
+    if bigrams:
+        feature_vector += features.pos_feature(decoded_target, features.de_nlp(), n=2)
+    if include_vector:
+        feature_vector += features.de_nlp()(decoded_target).vector.tolist()
 
     return i, target, feature_vector
 
