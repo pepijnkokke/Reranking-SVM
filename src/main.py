@@ -77,14 +77,14 @@ def test_classifier(classifier, x, test_y, inputs, references, candidates, norma
     prediction1 = classifier.predict(feature_vector)
     print('Prediction 1 should be 1: %d' % prediction1[0])
 
-    feature_vector = [pro.feature_vector(inputs[0], candidates[0][500], candidates[0][500])]
+    feature_vector = [pro.feature_vector(inputs[0], candidates[0][500], candidates[0][0])]
     if normalizer is not None:
         feature_vector = normalizer.transform(feature_vector)
     if pca is not None:
         feature_vector = pca.transform(feature_vector)
 
     prediction1 = classifier.predict(feature_vector)
-    print('Prediction 1 should be -1: %d' % prediction1[0])
+    print('Prediction 2 should be -1: %d' % prediction1[0])
 
     print(metrics.classification_report(test_y, pred_y))
 
@@ -180,33 +180,37 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
 def run():
 
     matrix = [
-        ('nn-very-simple', 30, 100, 10, 100, 5, True, True, False, False,
+        ('nn-very-simple', 30, 100, 10, 100, 5, True, False, True, False,
          lambda: MLPClassifier(hidden_layer_sizes=(30,), activation='tanh', algorithm='sgd', batch_size='auto',
                                learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
                                max_iter=1000)),
-        # ('nn-simple', 50, 1000, 10, 1000, 5, True, True, True, False,
-        #  lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
-        #                learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
-        # ('nn-without-vector-250', 200, 2700, 100, 2100, 5, True, True, True, False,
-        #  lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
-        #                 learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
-        # ('nn-with-vector-100', 200, 2700, 100, 2100, 5, True, True, True, False,
-        #  lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
-        #                learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
-        # ('nn-with-vector-250', 200, 2700, 100, 2100, 5, True, True, True, False,
-        #  lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
-        #                learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
-        # ('nn-with-vector-500', 200, 2700, 100, 2100, 5, True, True, True, False,
-        #  lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
-        #                learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
-        # ('nn-with-vector-250-smaller-reduction', 1000, 2700, 100, 2100, 5, True, True, True, False,
-        #  lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
-        #                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
-        #                        max_iter=1000)),
-        # ('svm-liblin', 100, 2700, 100, 2100, 5, True, True, True, True,
-        #  lambda: LinearSVC(C=0.025, verbose=True, max_iter=1000)),
-        # ('svm-libsvm', 100, 2700, 100, 2100, 5, True, True, True, True,
-        #  lambda: SVC(kernel='linear', C=0.025, verbose=True))
+        ('nn-simple1', 80, 1000, 10, 1000, 5, True, False, True, False,
+         lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
+                               learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
+                               max_iter=1000)),
+        ('nn-simple2', 80, 1000, 10, 1000, 5, True, True, True, False,
+         lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
+                       learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
+        ('nn-without-vector-250', 200, 2700, 100, 2100, 5, True, True, True, False,
+         lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
+                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
+        ('nn-with-vector-100', 200, 2700, 100, 2100, 5, True, True, True, True,
+         lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
+                       learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
+        ('nn-with-vector-250', 200, 2700, 100, 2100, 5, True, True, True, True,
+         lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
+                       learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
+        ('nn-with-vector-500', 250, 2700, 100, 2100, 5, True, True, True, True,
+         lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
+                       learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
+        ('nn-with-vector-250-smaller-reduction', 1000, 2700, 100, 2100, 5, True, True, True, True,
+         lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
+                               learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
+                               max_iter=1000)),
+        ('svm-liblin', 100, 2700, 100, 2100, 5, True, True, True, True,
+         lambda: LinearSVC(C=0.025, verbose=True, max_iter=1000)),
+        ('svm-libsvm', 100, 2700, 100, 2100, 5, True, True, True, True,
+         lambda: SVC(kernel='linear', C=0.025, verbose=True))
     ]
 
     for name, n_components, train_input_size, train_sample_size, test_input_size, \
