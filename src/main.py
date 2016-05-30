@@ -112,7 +112,7 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
     if os.path.isfile(path_norm):
         normalizer = joblib.load(path_norm)
     else:
-        normalizer = Normalizer(copy=True)
+        normalizer = Normalizer(copy=False)
 
     if n_components == 0:
         pca = None
@@ -120,7 +120,7 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
         if os.path.isfile(path_pca):
             pca = joblib.load(path_pca)
         else:
-            pca = PCA(copy=True, n_components=n_components)
+            pca = PCA(copy=False, n_components=n_components)
 
     if os.path.isfile(path_train):
         t0 = time()
@@ -196,25 +196,25 @@ def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_
 def run():
 
     matrix = [
-        ('nn-very-simple', 30, 100, 10, 100, 5, True, False, True, False,
-         lambda: MLPClassifier(hidden_layer_sizes=(30,), activation='tanh', algorithm='sgd', batch_size='auto',
-                               learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
-                               max_iter=1000)),
-        ('nn-very-simple-no-pca', 0, 100, 10, 100, 5, True, False, True, False,
-         lambda: MLPClassifier(hidden_layer_sizes=(30,), activation='tanh', algorithm='sgd', batch_size='auto',
-                               learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
-                               max_iter=1000)),
-        ('nn-simple1', 80, 1000, 10, 1000, 5, True, False, True, False,
-         lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
-                               learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
-                               max_iter=1000)),
-        ('nn-simple2', 80, 1000, 10, 1000, 5, True, True, True, False,
-         lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
-                       learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
-        ('nn-simple-no-pca', 0, 1000, 10, 1000, 5, True, False, True, False,
-         lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
-                               learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
-                               max_iter=1000)),
+        # ('nn-very-simple', 30, 100, 10, 100, 5, True, False, True, False,
+        #  lambda: MLPClassifier(hidden_layer_sizes=(30,), activation='tanh', algorithm='sgd', batch_size='auto',
+        #                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
+        #                        max_iter=1000)),
+        # ('nn-very-simple-no-pca', 0, 100, 10, 100, 5, True, False, True, False,
+        #  lambda: MLPClassifier(hidden_layer_sizes=(30,), activation='tanh', algorithm='sgd', batch_size='auto',
+        #                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
+        #                        max_iter=1000)),
+        # ('nn-simple1', 80, 1000, 10, 1000, 5, True, False, True, False,
+        #  lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
+        #                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
+        #                        max_iter=1000)),
+        # ('nn-simple2', 80, 1000, 10, 1000, 5, True, True, True, False,
+        #  lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
+        #                learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
+        # ('nn-simple-no-pca', 0, 1000, 10, 1000, 5, True, False, True, False,
+        #  lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
+        #                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
+        #                        max_iter=1000)),
         ('nn-without-vector-250', 200, 2700, 100, 2100, 5, True, True, True, False,
          lambda: MLPClassifier(hidden_layer_sizes=(250,), activation='tanh', algorithm='sgd', batch_size='auto',
                         learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001, max_iter=1000)),
