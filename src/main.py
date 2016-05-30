@@ -251,7 +251,7 @@ def run():
         classifier = train_classifier(classifier, X_train, y_train, name)
         test_classifier(classifier, X_test, y_test, X_train, y_train, test_inputs, test_references, test_candidates,
                         normalizer, pca)
-        evaluation.print_evaluation(test_inputs, test_references, test_candidates, classifier, normalizer, pca, limit=25)
+        evaluation.print_evaluation(test_inputs, test_references, test_candidates, classifier, normalizer, pca, limit=50)
 
 
 if __name__ == "__main__":
