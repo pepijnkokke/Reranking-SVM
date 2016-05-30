@@ -110,11 +110,11 @@ def parse_input(line):
     source = line.strip(' \t\n\r')
     decoded_source = source.decode('utf-8')
 
-    pos_features = features.pos_feature(decoded_source, features.en_nlp())
+    pos_features = features.pos_feature(decoded_source, features.en_nlp(), False)
     pos_bigram_features = features.pos_feature(decoded_source, features.en_nlp(), n=2)
-    # representation_feature = features.en_nlp()(decoded_source).vector.tolist()
+    representation_feature = features.en_nlp()(decoded_source).vector.tolist()
 
-    feature_vector = pos_features + pos_bigram_features
+    feature_vector = pos_features + pos_bigram_features + representation_feature
 
     return source, feature_vector
 
@@ -128,11 +128,11 @@ def parse_candidate(line):
     decoded_target = target.decode('utf-8')
 
     features_from_map = sum(feature_map.values(), [])
-    pos_features = features.pos_feature(decoded_target, features.de_nlp())
+    pos_features = features.pos_feature(decoded_target, features.de_nlp(), False)
     pos_bigram_features = features.pos_feature(decoded_target, features.de_nlp(), n=2)
-    # representation_feature = features.de_nlp()(decoded_target).vector.tolist()
+    representation_feature = features.de_nlp()(decoded_target).vector.tolist()
 
-    feature_vector = [score] + features_from_map + pos_features + pos_bigram_features
+    feature_vector = [score] + features_from_map + pos_features + pos_bigram_features + representation_feature
 
     return i, target, feature_vector
 
