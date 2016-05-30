@@ -60,13 +60,18 @@ def train_classifier(get_classifier, x, y, name='classifier'):
     return classifier
 
 
-def test_classifier(classifier, x, test_y, inputs, references, candidates, normalizer, pca):
+def test_classifier(classifier, test_x, test_y, train_x, train_y, inputs, references, candidates, normalizer, pca):
 
     print('Testing classifier')
+
     t0 = time()
-    pred_y = classifier.predict(x)
+    pred_y = classifier.predict(train_x)
+    score = metrics.accuracy_score(train_y, pred_y)
+    print('Score on training data: %0.5f' % score)
+
+    pred_y = classifier.predict(test_x)
     score = metrics.accuracy_score(test_y, pred_y)
-    print('Score: %0.5f' % score)
+    print('Score on testing: %0.5f' % score)
 
     feature_vector = [pro.feature_vector(inputs[0], candidates[0][0], candidates[0][500])]
     if normalizer is not None:
@@ -242,7 +247,8 @@ def run():
                 test_sample_size, pos, extended_pos, bigrams, vector)
 
         classifier = train_classifier(classifier, X_train, y_train, name)
-        test_classifier(classifier, X_test, y_test, test_inputs, test_references, test_candidates, normalizer, pca)
+        test_classifier(classifier, X_test, y_test, X_train, y_train, test_inputs, test_references, test_candidates,
+                        normalizer, pca)
         evaluation.print_evaluation(test_inputs, test_references, test_candidates, classifier, normalizer, pca, limit=25)
 
 
