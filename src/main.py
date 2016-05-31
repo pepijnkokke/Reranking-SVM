@@ -221,7 +221,7 @@ def run():
         #  lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
         #                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
         #                        max_iter=1000)),
-        ('nn-deep', 0, 2700, 100, 2100, 5, True, True, True, True,
+        ('nn-deep', 0, 2000, 100, 2000, 5, True, True, True, True,
          lambda: MLPClassifier(hidden_layer_sizes=(1024,1024), activation='tanh', algorithm='sgd', batch_size='auto',
                                learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
                                max_iter=1000)),
