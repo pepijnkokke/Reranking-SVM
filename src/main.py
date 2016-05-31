@@ -97,6 +97,7 @@ def test_classifier(classifier, test_x, test_y, train_x, train_y, inputs, refere
 
     print("done in %0.3fs" % (time() - t0))
 
+
 def get_preprocessed_data(n_components=100, train_input_size=2000, train_sample_size=1000, test_input_size=2000,
                           test_sample_size=5, pos=True, extended_pos=True, bigrams=True, vector=True):
 
@@ -221,7 +222,7 @@ def run():
         #  lambda: MLPClassifier(hidden_layer_sizes=(100,), activation='tanh', algorithm='sgd', batch_size='auto',
         #                        learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
         #                        max_iter=1000)),
-        ('nn-deep', 0, 2000, 100, 2000, 5, True, True, True, True,
+        ('nn-deep', 0, 2900, 100, 2100, 5, True, True, True, True,
          lambda: MLPClassifier(hidden_layer_sizes=(1024,1024), activation='tanh', algorithm='sgd', batch_size='auto',
                                learning_rate='adaptive', learning_rate_init=0.01, verbose=True, tol=0.000001,
                                max_iter=1000)),
