@@ -24,11 +24,9 @@ def best_reranking(inputs, candidates, classifier, normalizer, pca):
 
         results = []
 
-        for j in range(0, len(candidates)):
+        for candidate in candidates[i]:
 
-            candidate = candidates[i][j]
-
-            (_, target,candidate_features) = candidate
+            (_, target, candidate_features) = candidate
             (_, input_features) = input
 
             feature_vector = [np.concatenate((np.array(input_features), np.array(candidate_features)))]
