@@ -112,26 +112,26 @@ def get_test(pca, normalizer, test_input_size=2100, test_sample_size=5, params=(
 def run():
 
     matrix = [
-        # ('svm-100-baseline',                0, 100, 100, 100, 5, False, False, False, False),
-        # ('svm-100-full',                    0, 100, 100, 100, 5, True, True, True, True),
-        ('svm-500-baseline',                0, 500, 100, 250, 5, False, False, False, False),
-        ('svm-500-pos',                     0, 500, 100, 250, 5, True, False, False, False),
-        ('svm-500-extended-pos',            0, 500, 100, 250, 5, True, True, False, False),
-        ('svm-500-pos-bigrams',             0, 500, 100, 250, 5, True, False, True, False),
-        ('svm-500-ex-pos-bigrams',          0, 500, 100, 250, 5, True, True, True, False),
-        ('svm-500-representation',          0, 500, 100, 250, 5, False, False, True, True),
-        ('svm-500-full',                    0, 500, 100, 250, 5, True, True, True, True),
-        ('svm-2900-baseline',               0, 2900, 100, 2100, 5, False, False, False, False),
-        ('svm-2900-pos',                    0, 2900, 100, 2100, 5, True, False, False, False),
-        ('svm-2900-ex-pos',                 0, 2900, 100, 2100, 5, True, True, False, False),
-        ('svm-2900-pos-bigrams-pca',        100, 2900, 100, 2100, 5, True, False, True, False),
-        ('svm-2900-ex-pos-bigrams-pca',     100, 2900, 100, 2100, 5, True, True, True, False),
-        ('svm-2900-representation-pca',     100, 2900, 100, 2100, 5, False, False, True, True),
-        ('svm-2900-full-pca',               100, 2900, 100, 2100, 5, True, True, True, True),
-        ('svm-2900-pos-bigrams',            0, 2900, 100, 2100, 5, True, False, True, False),
-        ('svm-2900-ex-pos-bigrams',         0, 2900, 100, 2100, 5, True, True, True, False),
-        ('svm-2900-representation',         0, 2900, 100, 2100, 5, False, False, True, True),
-        ('svm-2900-full',                   0, 2900, 100, 2100, 5, True, True, True, True),
+        ('svm-100-baseline',                0, 100, 200, 100, 5, False, False, False, False),
+        ('svm-100-full',                    0, 100, 200, 100, 5, True, True, True, True),
+        ('svm-500-baseline',                0, 500, 200, 250, 5, False, False, False, False),
+        ('svm-500-pos',                     0, 500, 200, 250, 5, True, False, False, False),
+        ('svm-500-extended-pos',            0, 500, 200, 250, 5, True, True, False, False),
+        ('svm-500-pos-bigrams',             0, 500, 200, 250, 5, True, False, True, False),
+        ('svm-500-ex-pos-bigrams',          0, 500, 200, 250, 5, True, True, True, False),
+        ('svm-500-representation',          0, 500, 200, 250, 5, False, False, True, True),
+        ('svm-500-full',                    0, 500, 200, 250, 5, True, True, True, True),
+        ('svm-2900-baseline',               0, 2900, 200, 2100, 5, False, False, False, False),
+        ('svm-2900-pos',                    0, 2900, 200, 2100, 5, True, False, False, False),
+        ('svm-2900-ex-pos',                 0, 2900, 200, 2100, 5, True, True, False, False),
+        ('svm-2900-pos-bigrams-pca',        100, 2900, 200, 2100, 5, True, False, True, False),
+        ('svm-2900-ex-pos-bigrams-pca',     100, 2900, 200, 2100, 5, True, True, True, False),
+        ('svm-2900-representation-pca',     100, 2900, 200, 2100, 5, False, False, True, True),
+        ('svm-2900-full-pca',               100, 2900, 200, 2100, 5, True, True, True, True),
+        ('svm-2900-pos-bigrams',            0, 2900, 200, 2100, 5, True, False, True, False),
+        ('svm-2900-ex-pos-bigrams',         0, 2900, 200, 2100, 5, True, True, True, False),
+        ('svm-2900-representation',         0, 2900, 200, 2100, 5, False, False, True, True),
+        ('svm-2900-full',                   0, 2900, 200, 2100, 5, True, True, True, True),
     ]
 
     for name, n_pca, train_input_size, train_sample_size, test_input_size, \
@@ -163,7 +163,7 @@ def run():
 
         path = os.path.join(data.OUT_DIR, 'eval.out')
         with open(path, "a") as eval_file:
-            eval_file.write("%-30s , %0.10f , %4d , %8.2f , %8.2f\n" % (name, blue, feature_length, classification_time, pca_time))
+            eval_file.write("%-30s , %0.10f , %4d , %8.2f , %8.2f , %4d\n" % (name, blue, feature_length, classification_time, pca_time, train_sample_size))
 
 
 if __name__ == "__main__":
