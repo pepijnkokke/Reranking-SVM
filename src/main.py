@@ -113,6 +113,11 @@ def run():
 
     matrix = [
         ('svm-100-baseline',                0, 100, 200, 2100, 5, False, False, False, False),
+        ('svm-100-pos',                     0, 100, 200, 2100, 5, True, False, False, False),
+        ('svm-100-extended-pos',            0, 100, 200, 2100, 5, True, True, False, False),
+        ('svm-100-pos-bigrams',             0, 100, 200, 2100, 5, True, False, True, False),
+        ('svm-100-ex-pos-bigrams',          0, 100, 200, 2100, 5, True, True, True, False),
+        ('svm-100-representation',          0, 100, 200, 2100, 5, False, False, True, True),
         ('svm-100-full',                    0, 100, 200, 2100, 5, True, True, True, True),
         ('svm-500-baseline',                0, 500, 200, 2100, 5, False, False, False, False),
         ('svm-500-pos',                     0, 500, 200, 2100, 5, True, False, False, False),
