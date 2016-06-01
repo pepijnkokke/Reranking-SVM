@@ -57,9 +57,7 @@ def test_classifier(classifier, test_x, test_y):
 
 def get_dev_and_processing(n_pca=100, train_input_size=2900, train_sample_size=1000, params=(False, False, False, False)):
 
-    (pos, extended_pos, bigrams, vector) = params
-
-    (dev_inputs, dev_references, dev_candidates) = data.load_dev(train_input_size, pos, extended_pos, bigrams, vector)
+    (dev_inputs, dev_references, dev_candidates) = data.load_dev(train_input_size, params)
     (X_train, y_train) = pro.pro(dev_inputs, dev_references, dev_candidates, train_sample_size)
 
     # clear some memory
@@ -94,10 +92,8 @@ def get_dev_and_processing(n_pca=100, train_input_size=2900, train_sample_size=1
 
 def get_test(pca, normalizer, test_input_size=2100, test_sample_size=5, params=(False, False, False, False)):
 
-    (pos, extended_pos, bigrams, vector) = params
-
-    (test_inputs, test_references, test_candidates) = data.load_test(test_input_size, pos, extended_pos, bigrams,
-                                                                     vector)
+    (test_inputs, test_references, test_candidates) = \
+        data.load_test(test_input_size, params)
     (X_test, y_test) = pro.pro(test_inputs, test_references, test_candidates, test_sample_size)
 
     print("Normalizing data")
@@ -116,14 +112,26 @@ def get_test(pca, normalizer, test_input_size=2100, test_sample_size=5, params=(
 def run():
 
     matrix = [
-        ('svm-100-baseline', 0, 100, 100, 100, 5, False, False, False, False),
-        ('svm-100-baseline', 0, 100, 100, 100, 5, False, False, False, False),
-        ('svm-100-pos', 0, 100, 100, 100, 5, True, False, False, False),
-        ('svm-100-extended-pos', 0, 100, 100, 100, 5, True, True, False, False),
-        ('svm-100-pos-bigrams', 0, 100, 100, 100, 5, True, False, True, False),
-        ('svm-100-extended-pos-bigrams', 0, 100, 100, 100, 5, True, True, True, False),
-        ('svm-100-representation', 0, 100, 100, 100, 5, False, False, True, True),
-        ('svm-100-full', 0, 100, 100, 100, 5, True, True, True, True),
+        # ('svm-100-baseline',                0, 100, 100, 100, 5, False, False, False, False),
+        ('svm-100-full',                    0, 100, 100, 100, 5, True, True, True, True),
+        ('svm-500-baseline',                0, 500, 100, 250, 5, False, False, False, False),
+        ('svm-500-pos',                     0, 500, 100, 250, 5, True, False, False, False),
+        ('svm-500-extended-pos',            0, 500, 100, 250, 5, True, True, False, False),
+        ('svm-500-pos-bigrams',             0, 500, 100, 250, 5, True, False, True, False),
+        ('svm-500-ex-pos-bigrams',          0, 500, 100, 250, 5, True, True, True, False),
+        ('svm-500-representation',          0, 500, 100, 250, 5, False, False, True, True),
+        ('svm-500-full',                    0, 500, 100, 250, 5, True, True, True, True),
+        ('svm-2900-baseline',               0, 2900, 100, 2100, 5, False, False, False, False),
+        ('svm-2900-pos',                    0, 2900, 100, 2100, 5, True, False, False, False),
+        ('svm-2900-ex-pos',                 0, 2900, 100, 2100, 5, True, True, False, False),
+        ('svm-2900-pos-bigrams-pca',        100, 2900, 100, 2100, 5, True, False, True, False),
+        ('svm-2900-ex-pos-bigrams-pca',     100, 2900, 100, 2100, 5, True, True, True, False),
+        ('svm-2900-representation-pca',     100, 2900, 100, 2100, 5, False, False, True, True),
+        ('svm-2900-full-pca',               100, 2900, 100, 2100, 5, True, True, True, True),
+        ('svm-2900-pos-bigrams',            0, 2900, 100, 2100, 5, True, False, True, False),
+        ('svm-2900-ex-pos-bigrams',         0, 2900, 100, 2100, 5, True, True, True, False),
+        ('svm-2900-representation',         0, 2900, 100, 2100, 5, False, False, True, True),
+        ('svm-2900-full',                   0, 2900, 100, 2100, 5, True, True, True, True),
     ]
 
     for name, n_pca, train_input_size, train_sample_size, test_input_size, \
@@ -138,7 +146,7 @@ def run():
         (X_train, y_train, normalizer, pca, pca_time) = \
             get_dev_and_processing(n_pca, train_input_size, train_sample_size, params)
 
-        feature_count = len(X_train[0])
+        feature_length = len(X_train[0])
 
         classifier, classification_time = train_classifier(X_train, y_train)
 
@@ -155,7 +163,7 @@ def run():
 
         path = os.path.join(data.OUT_DIR, 'eval.out')
         with open(path, "a") as eval_file:
-            eval_file.write("%-20s,%0.10f,%4d,%6.2f\n" % (name, blue, feature_count, classification_time))
+            eval_file.write("%-30s , %0.10f , %4d , %8.2f , %8.2f\n" % (name, blue, feature_length, classification_time, pca_time))
 
 
 if __name__ == "__main__":
