@@ -4,10 +4,10 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import with_statement
 
-from nltk.translate.bleu_score import modified_precision
+from nltk.translate.bleu_score import SmoothingFunction, sentence_bleu
 
 
-def bleu(reference, candidate, n=4):
+def bleu(reference, candidate):
     """
     Compute the BLEU score for a given candidate sentence, with respect to a
     given reference sentence.
@@ -15,9 +15,10 @@ def bleu(reference, candidate, n=4):
     reference: the reference translation
     candidate: the candidate translation
     """
+    chen_cherry = SmoothingFunction()
     try:
-        return float(modified_precision([reference], candidate, 2)) + \
-               2 * float(modified_precision([reference], candidate, 3)) +\
-               4 * float(modified_precision([reference], candidate, 4))
+        return sentence_bleu([reference], candidate, smoothing_function=chen_cherry.method7)
     except ZeroDivisionError as error:
+        return 0
+    except AttributeError as error:
         return 0

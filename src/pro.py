@@ -24,13 +24,16 @@ def feature_vector(input, candidate1, candidate2):
     (_, _, candidate1_features) = candidate1
     (_, _, candidate2_features) = candidate2
 
-    return input_features + candidate1_features + candidate2_features
+    input_features = np.array(input_features)
+    candidate_features = np.array(candidate1_features) - np.array(candidate2_features)
+
+    return np.concatenate((input_features, candidate_features))
 
 
 def pro(inputs, references, candidates, sample_size=100):
 
-    dem1 = len(inputs) * sample_size * 2
-    dem2 = len(candidates[0][0][2]) * 2 + len(inputs[0][1])
+    dem1 = len(inputs) * sample_size
+    dem2 = len(candidates[0][0][2]) + len(inputs[0][1])
 
     x = np.empty((dem1, dem2), dtype=float)
     y = np.empty(dem1, dtype=int)
@@ -53,12 +56,10 @@ def pro(inputs, references, candidates, sample_size=100):
             while j1 == j2:
                 j2 = random.randint(0, len(candidate) - 1)
 
-            x[k] = np.array(feature_vector(inp, candidate[j1], candidate[j2]))
-            x[k + 1] = np.array(feature_vector(inp, candidate[j2], candidate[j1]))
+            x[k] = feature_vector(inp, candidate[j1], candidate[j2])
             y[k] = training_label(reference, candidate[j1], candidate[j2])
-            y[k + 1] = training_label(reference, candidate[j2], candidate[j1])
 
-            k += 2
+            k += 1
 
     print("\rPro 100.00%")
 
