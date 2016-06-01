@@ -4,7 +4,6 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import with_statement
 
-import pro
 from nltk.translate.bleu_score import corpus_bleu
 from operator import itemgetter
 import numpy as np
@@ -19,6 +18,9 @@ def best_reranking(inputs, candidates, classifier, normalizer, pca):
     sentences = []
 
     for i, input in enumerate(inputs):
+
+        sys.stdout.write("\rReranking %6.2f%%" % ((100 * i) / float(len(inputs))))
+        sys.stdout.flush()
 
         results = []
 
@@ -45,7 +47,7 @@ def best_reranking(inputs, candidates, classifier, normalizer, pca):
         (_, target) = sorted(results, key=itemgetter(0), reverse=True)[0]
         sentences.append(target)
 
-    print("Reranking finished")
+    print("\rReranking 100.00%")
 
     return sentences
 
@@ -63,7 +65,7 @@ def best_baseline(inputs, candidates):
     return sentences
 
 
-def print_evaluation(inputs, references, candidates, classifier, normalizer, pca):
+def evaluation(inputs, references, candidates, classifier, normalizer, pca):
     bleu_references = [[x] for x in references]
     bleu_hypotheses_baseline = best_baseline(inputs, candidates)
 
@@ -72,9 +74,10 @@ def print_evaluation(inputs, references, candidates, classifier, normalizer, pca
 
     bleu_hypotheses_reranking = best_reranking(inputs, candidates, classifier, normalizer, pca)
 
-    if len(bleu_references) == len(bleu_hypotheses_reranking):
-        reranking_blue = corpus_bleu(bleu_references, bleu_hypotheses_reranking)
-        print("Reranking BLEU: %0.10f" % reranking_blue)
+    reranking_blue = corpus_bleu(bleu_references, bleu_hypotheses_reranking)
+    print("Reranking BLEU: %0.10f" % reranking_blue)
 
-        blue_diff = reranking_blue - baseline_blue
-        print("BLEU Diff: %0.10f" % blue_diff)
+    blue_diff = reranking_blue - baseline_blue
+    print("BLEU Diff: %0.10f" % blue_diff)
+
+    return reranking_blue
