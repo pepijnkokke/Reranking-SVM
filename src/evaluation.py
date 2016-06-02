@@ -93,4 +93,4 @@ def evaluation(data, classifier, normalizer, pca, params):
     blue_diff = reranking_blue - baseline_blue
     print("BLEU Diff: %0.10f" % blue_diff)
 
-    return reranking_blue
+    return baseline_blue, reranking_blue, blue_diff

@@ -170,14 +170,14 @@ def run():
         X_test, y_test = get_test(test_data, pca, normalizer, params=params)
         test_classifier(classifier, X_test, y_test)
 
-        blue = evaluation.evaluation(test_data, classifier, normalizer, pca, params)
+        blue_baseline, blue, blue_diff = evaluation.evaluation(test_data, classifier, normalizer, pca, params)
 
         if not os.path.isdir(OUT_DIR):
             os.makedirs(OUT_DIR)
 
         path = os.path.join(OUT_DIR, 'eval.out')
         with open(path, "a") as eval_file:
-            eval_file.write("%-30s , %0.10f , %4d , %8.2f , %8.2f , %4d\n" % (name, blue, feature_length, classification_time, pca_time, train_sample_size))
+            eval_file.write("%-30s , %0.10f , %0.10f, %0.10f , %4d , %8.2f , %8.2f , %4d\n" % (name, blue_baseline, blue, blue_diff, feature_length, classification_time, pca_time, train_sample_size))
 
 
 if __name__ == "__main__":
