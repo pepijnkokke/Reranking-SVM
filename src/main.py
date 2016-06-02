@@ -143,7 +143,7 @@ def run():
     ]
 
     # Preload test data into memory
-    test_data = data.load_test(2900)
+    test_data = data.load_test(2100)
     (test_inputs, test_references, test_candidates) = test_data
 
     for name, n_pca, train_input_size, train_sample_size, pos, extended_pos, bigrams, vector in matrix:

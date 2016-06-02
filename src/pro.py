@@ -4,6 +4,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import with_statement
 
+from time import time
+
 import metrics
 import random
 import sys
@@ -41,6 +43,7 @@ def training_label_and_feature_vector(input, reference, candidate1, candidate2, 
 
 def pro(inputs, references, candidates, sample_size=100, params=(False, False, False, False), seed=None):
 
+    t0 = time()
     random.seed(seed)
 
     (_, fs_example) = training_label_and_feature_vector(inputs[0], references[0], candidates[0][1], candidates[0][1], params)
@@ -77,5 +80,8 @@ def pro(inputs, references, candidates, sample_size=100, params=(False, False, F
             k += 1
 
     print("\rPro 100.00%")
+
+    pro_time = (time() - t0)
+    print("done in %0.3fs" % pro_time)
 
     return x, y
