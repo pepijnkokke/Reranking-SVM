@@ -5,6 +5,7 @@ from __future__ import print_function
 from __future__ import with_statement
 
 from sklearn import metrics
+from sklearn.linear_model import SGDClassifier
 from sklearn.svm import SVC
 from sklearn.svm import LinearSVC
 from sklearn.decomposition import PCA
@@ -41,7 +42,8 @@ def train_classifier(x, y):
     t0 = time()
     print('Training classifier')
     # classifier = SVC(kernel='linear', verbose=True)
-    classifier = LinearSVC(verbose=True)
+    # classifier = LinearSVC(verbose=True, tol=1e-8, max_iter=10000)
+    classifier = SGDClassifier(verbose=True, average=100, n_iter=1000)
     classifier.fit(x, y)
 
     classification_time = (time() - t0)
@@ -114,23 +116,26 @@ def get_test(test_data, pca, normalizer, test_sample_size=2, params=(False, Fals
 
 def run():
 
+    test_size = 25
+
     matrix = [
-        ('svm-100-baseline',                0, 100, 200, False, False, False, False),
-        ('svm-100-baseline-500',            0, 100, 500, False, False, False, False),
-        ('svm-100-baseline-1000',           0, 100, 1000, False, False, False, False),
-        ('svm-100-pos',                     0, 100, 200, True, False, False, False),
-        ('svm-100-ex-pos',                  0, 100, 200, True, True, False, False),
-        ('svm-100-pos-bigrams',             0, 100, 200, True, False, True, False),
-        ('svm-100-ex-pos-bigrams',          0, 100, 200, True, True, True, False),
-        ('svm-100-representation',          0, 100, 200, False, False, False, True),
-        ('svm-100-full',                    0, 100, 200, True, True, True, True),
-        ('svm-500-baseline',                0, 500, 100, False, False, False, False),
-        ('svm-500-pos',                     0, 500, 100, True, False, False, False),
-        ('svm-500-ex-pos',                  0, 500, 100, True, True, False, False),
-        ('svm-500-pos-bigrams',             0, 500, 100, True, False, True, False),
-        ('svm-500-ex-pos-bigrams',          0, 500, 100, True, True, True, False),
-        ('svm-500-representation',          0, 500, 100, False, False, False, True),
-        ('svm-500-full',                    0, 500, 100, True, True, True, True),
+        ('svm-test',                        0, test_size, test_size, False, False, False, False),
+        # ('svm-100-baseline',                0, 100, 200, False, False, False, False),
+        # ('svm-100-baseline-500',            0, 100, 500, False, False, False, False),
+        # ('svm-100-baseline-1000',           0, 100, 1000, False, False, False, False),
+        # ('svm-100-pos',                     0, 100, 200, True, False, False, False),
+        # ('svm-100-ex-pos',                  0, 100, 200, True, True, False, False),
+        # ('svm-100-pos-bigrams',             0, 100, 200, True, False, True, False),
+        # ('svm-100-ex-pos-bigrams',          0, 100, 200, True, True, True, False),
+        # ('svm-100-representation',          0, 100, 200, False, False, False, True),
+        # ('svm-100-full',                    0, 100, 200, True, True, True, True),
+        # ('svm-500-baseline',                0, 500, 100, False, False, False, False),
+        # ('svm-500-pos',                     0, 500, 100, True, False, False, False),
+        # ('svm-500-ex-pos',                  0, 500, 100, True, True, False, False),
+        # ('svm-500-pos-bigrams',             0, 500, 100, True, False, True, False),
+        # ('svm-500-ex-pos-bigrams',          0, 500, 100, True, True, True, False),
+        # ('svm-500-representation',          0, 500, 100, False, False, False, True),
+        # ('svm-500-full',                    0, 500, 100, True, True, True, True),
         ('svm-2900-full',                   0, 2900, 100, True, True, True, True),
         ('svm-2900-baseline',               0, 2900, 100, False, False, False, False),
         ('svm-2900-baseline-200',           0, 2900, 200, False, False, False, False),
@@ -144,7 +149,7 @@ def run():
     ]
 
     # Preload test data into memory
-    test_data = data.load_test(2100)
+    test_data = None
 
     for name, n_pca, train_input_size, train_sample_size, pos, extended_pos, bigrams, vector in matrix:
 
@@ -166,10 +171,21 @@ def run():
         del X_train
         del y_train
 
+        if test_data is None or (len(test_data[1]) is not test_size and train_input_size == test_size):
+            test_data = data.load_test(test_size)
+
+        if test_data is None or (len(test_data[1]) is not 2100 and train_input_size > test_size):
+            test_data = data.load_test(2100)
+
         X_test, y_test = get_test(test_data, pca, normalizer, params=params)
         test_classifier(classifier, X_test, y_test)
 
-        blue_baseline, blue, blue_diff = evaluation.evaluation(test_data, classifier, normalizer, pca, params)
+        limit = 1000
+        if train_input_size == test_size:
+            limit = test_size
+
+        blue_baseline, blue, blue_diff = \
+            evaluation.evaluation(test_data, classifier, normalizer, pca, params, limit)
 
         complete_time = (time() - t0)
         print("Completed in %0.3fs" % complete_time)

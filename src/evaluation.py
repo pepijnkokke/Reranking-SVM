@@ -13,7 +13,7 @@ import sys
 import features
 
 
-def best_reranking(inputs, candidates, classifier, normalizer, pca, params):
+def best_reranking(inputs, candidates, classifier, normalizer, pca, params, limit=1000):
     """
     Returns a list of the best sentences according to the reranking
     Only the top sentence is returned
@@ -33,7 +33,10 @@ def best_reranking(inputs, candidates, classifier, normalizer, pca, params):
         (_, input_features) = features.input_features(input, params)
         input_features = np.array(input_features)
 
-        for candidate in candidates[i]:
+        for j, candidate in enumerate(candidates[i]):
+
+            if j > limit:
+                break
 
             (_, target, candidate_features) = features.candidate_features(candidate, params)
             candidate_features = np.array(candidate_features)
@@ -75,7 +78,7 @@ def best_baseline(inputs, candidates):
     return sentences
 
 
-def evaluation(data, classifier, normalizer, pca, params):
+def evaluation(data, classifier, normalizer, pca, params, limit=1000):
 
     (inputs, references, candidates) = data
 
@@ -85,7 +88,7 @@ def evaluation(data, classifier, normalizer, pca, params):
     baseline_blue = corpus_bleu(bleu_references, bleu_hypotheses_baseline)
     print("Baseline BLEU: %0.10f" % baseline_blue)
 
-    bleu_hypotheses_reranking = best_reranking(inputs, candidates, classifier, normalizer, pca, params)
+    bleu_hypotheses_reranking = best_reranking(inputs, candidates, classifier, normalizer, pca, params, limit)
 
     reranking_blue = corpus_bleu(bleu_references, bleu_hypotheses_reranking)
     print("Reranking BLEU: %0.10f" % reranking_blue)
