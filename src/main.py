@@ -172,7 +172,7 @@ def run():
         blue_baseline, blue, blue_diff = evaluation.evaluation(test_data, classifier, normalizer, pca, params)
 
         complete_time = (time() - t0)
-        print("Completed in %0.3fs" % classification_time)
+        print("Completed in %0.3fs" % complete_time)
 
         if not os.path.isdir(OUT_DIR):
             os.makedirs(OUT_DIR)
