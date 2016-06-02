@@ -8,9 +8,10 @@ from nltk.translate.bleu_score import corpus_bleu
 from operator import itemgetter
 import numpy as np
 import sys
+import features
 
 
-def best_reranking(inputs, candidates, classifier, normalizer, pca):
+def best_reranking(inputs, candidates, classifier, normalizer, pca, params):
     """
     Returns a list of the best sentences according to the reranking
     Only the top sentence is returned
@@ -25,12 +26,12 @@ def best_reranking(inputs, candidates, classifier, normalizer, pca):
 
         results = []
 
-        (_, input_features) = input
+        (_, input_features) = features.input_features(input, params)
         input_features = np.array(input_features)
 
         for candidate in candidates[i]:
 
-            (_, target, candidate_features) = candidate
+            (_, target, candidate_features) = features.candidate_features(candidate, params)
             candidate_features = np.array(candidate_features)
 
             feature_vector = [np.concatenate((input_features, candidate_features))]
@@ -67,14 +68,14 @@ def best_baseline(inputs, candidates):
     return sentences
 
 
-def evaluation(inputs, references, candidates, classifier, normalizer, pca):
+def evaluation(inputs, references, candidates, classifier, normalizer, pca, params):
     bleu_references = [[x] for x in references]
     bleu_hypotheses_baseline = best_baseline(inputs, candidates)
 
     baseline_blue = corpus_bleu(bleu_references, bleu_hypotheses_baseline)
     print("Baseline BLEU: %0.10f" % baseline_blue)
 
-    bleu_hypotheses_reranking = best_reranking(inputs, candidates, classifier, normalizer, pca)
+    bleu_hypotheses_reranking = best_reranking(inputs, candidates, classifier, normalizer, pca, params)
 
     reranking_blue = corpus_bleu(bleu_references, bleu_hypotheses_reranking)
     print("Reranking BLEU: %0.10f" % reranking_blue)

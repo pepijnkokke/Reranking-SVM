@@ -6,6 +6,7 @@ from __future__ import with_statement
 
 from sklearn import metrics
 from sklearn.svm import SVC
+from sklearn.svm import LinearSVC
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import Normalizer
 from time import time
@@ -15,6 +16,8 @@ import data
 import pro
 import evaluation
 import os
+
+OUT_DIR = os.path.abspath(os.path.join('..', 'out'))
 
 
 def dump_to_svm_format(x, y, filename='out.svm'):
@@ -37,7 +40,8 @@ def train_classifier(x, y):
 
     t0 = time()
     print('Training classifier')
-    classifier = SVC(kernel='linear', C=0.025, verbose=True)
+    # classifier = SVC(kernel='linear', verbose=True)
+    classifier = LinearSVC(verbose=True)
     classifier.fit(x, y)
 
     classification_time = (time() - t0)
@@ -57,8 +61,8 @@ def test_classifier(classifier, test_x, test_y):
 
 def get_dev_and_processing(n_pca=100, train_input_size=2900, train_sample_size=1000, params=(False, False, False, False)):
 
-    (dev_inputs, dev_references, dev_candidates) = data.load_dev(train_input_size, params)
-    (X_train, y_train) = pro.pro(dev_inputs, dev_references, dev_candidates, train_sample_size)
+    (dev_inputs, dev_references, dev_candidates) = data.load_dev(train_input_size)
+    (X_train, y_train) = pro.pro(dev_inputs, dev_references, dev_candidates, train_sample_size, params)
 
     # clear some memory
     del dev_inputs
@@ -90,11 +94,10 @@ def get_dev_and_processing(n_pca=100, train_input_size=2900, train_sample_size=1
     return X_train, y_train, normalizer, pca, pca_time
 
 
-def get_test(pca, normalizer, test_input_size=2100, test_sample_size=5, params=(False, False, False, False)):
+def get_test(test_data, pca, normalizer, test_sample_size=5, params=(False, False, False, False)):
 
-    (test_inputs, test_references, test_candidates) = \
-        data.load_test(test_input_size, params)
-    (X_test, y_test) = pro.pro(test_inputs, test_references, test_candidates, test_sample_size)
+    (test_inputs, test_references, test_candidates) = test_data
+    (X_test, y_test) = pro.pro(test_inputs, test_references, test_candidates, test_sample_size, params, seed=10)
 
     print("Normalizing data")
     normalizer.fit(X_test)
@@ -106,41 +109,44 @@ def get_test(pca, normalizer, test_input_size=2100, test_sample_size=5, params=(
 
     print("Test set size: %d" % len(X_test))
 
-    return X_test, y_test, test_inputs, test_references, test_candidates
+    return X_test, y_test
 
 
 def run():
 
     matrix = [
-        ('svm-100-baseline',                0, 100, 200, 2100, 5, False, False, False, False),
-        ('svm-100-pos',                     0, 100, 200, 2100, 5, True, False, False, False),
-        ('svm-100-ex-pos',                  0, 100, 200, 2100, 5, True, True, False, False),
-        ('svm-100-pos-bigrams-pca',         100, 100, 200, 2100, 5, True, False, True, False),
-        ('svm-100-ex-pos-bigrams-pca',      100, 100, 200, 2100, 5, True, True, True, False),
-        ('svm-100-representation-pca',      100, 100, 200, 2100, 5, False, False, True, True),
-        ('svm-100-full-pca',                100, 100, 200, 2100, 5, True, True, True, True),
-        ('svm-500-baseline',                0, 500, 100, 2100, 5, False, False, False, False),
-        ('svm-500-pos',                     0, 500, 100, 2100, 5, True, False, False, False),
-        ('svm-500-ex-pos',                  0, 500, 100, 2100, 5, True, True, False, False),
-        ('svm-500-pos-bigrams-pca',         100, 500, 100, 2100, 5, True, False, True, False),
-        ('svm-500-ex-pos-bigrams-pca',      100, 500, 100, 2100, 5, True, True, True, False),
-        ('svm-500-representation-pca',      100, 500, 100, 2100, 5, False, False, True, True),
-        ('svm-500-full-pca',                100, 500, 100, 2100, 5, True, True, True, True),
-        ('svm-2900-baseline',               0, 2900, 50, 2100, 5, False, False, False, False),
-        ('svm-2900-pos',                    0, 2900, 50, 2100, 5, True, False, False, False),
-        ('svm-2900-ex-pos',                 0, 2900, 50, 2100, 5, True, True, False, False),
-        ('svm-2900-pos-bigrams-pca',        100, 2900, 50, 2100, 5, True, False, True, False),
-        ('svm-2900-ex-pos-bigrams-pca',     100, 2900, 50, 2100, 5, True, True, True, False),
-        ('svm-2900-representation-pca',     100, 2900, 50, 2100, 5, False, False, True, True),
-        ('svm-2900-full-pca',               100, 2900, 50, 2100, 5, True, True, True, True),
-        ('svm-2900-pos-bigrams',            0, 2900, 50, 2100, 5, True, False, True, False),
-        ('svm-2900-ex-pos-bigrams',         0, 2900, 50, 2100, 5, True, True, True, False),
-        ('svm-2900-representation',         0, 2900, 50, 2100, 5, False, False, True, True),
-        ('svm-2900-full',                   0, 2900, 50, 2100, 5, True, True, True, True),
+        ('svm-100-baseline',                0, 100, 200, False, False, False, False),
+        ('svm-100-pos',                     0, 100, 200, True, False, False, False),
+        ('svm-100-ex-pos',                  0, 100, 200, True, True, False, False),
+        ('svm-100-pos-bigrams-pca',         100, 100, 200, True, False, True, False),
+        ('svm-100-ex-pos-bigrams-pca',      100, 100, 200, True, True, True, False),
+        ('svm-100-representation-pca',      100, 100, 200, False, False, True, True),
+        ('svm-100-full-pca',                100, 100, 200, True, True, True, True),
+        ('svm-500-baseline',                0, 500, 100, False, False, False, False),
+        ('svm-500-pos',                     0, 500, 100, True, False, False, False),
+        ('svm-500-ex-pos',                  0, 500, 100, True, True, False, False),
+        ('svm-500-pos-bigrams-pca',         100, 500, 100, True, False, True, False),
+        ('svm-500-ex-pos-bigrams-pca',      100, 500, 100, True, True, True, False),
+        ('svm-500-representation-pca',      100, 500, 100, False, False, True, True),
+        ('svm-500-full-pca',                100, 500, 100, True, True, True, True),
+        ('svm-2900-baseline',               0, 2900, 50, False, False, False, False),
+        ('svm-2900-pos',                    0, 2900, 50, True, False, False, False),
+        ('svm-2900-ex-pos',                 0, 2900, 50, True, True, False, False),
+        ('svm-2900-pos-bigrams-pca',        100, 2900, 50, True, False, True, False),
+        ('svm-2900-ex-pos-bigrams-pca',     100, 2900, 50, True, True, True, False),
+        ('svm-2900-representation-pca',     100, 2900, 50, False, False, True, True),
+        ('svm-2900-full-pca',               100, 2900, 50, True, True, True, True),
+        ('svm-2900-pos-bigrams',            0, 2900, 50, True, False, True, False),
+        ('svm-2900-ex-pos-bigrams',         0, 2900, 50, True, True, True, False),
+        ('svm-2900-representation',         0, 2900, 50, False, False, True, True),
+        ('svm-2900-full',                   0, 2900, 50, True, True, True, True),
     ]
 
-    for name, n_pca, train_input_size, train_sample_size, test_input_size, \
-      test_sample_size, pos, extended_pos, bigrams, vector in matrix:
+    # Preload test data into memory
+    test_data = data.load_test(2900)
+    (test_inputs, test_references, test_candidates) = test_data
+
+    for name, n_pca, train_input_size, train_sample_size, pos, extended_pos, bigrams, vector in matrix:
 
         print("---------------")
         print(name)
@@ -159,14 +165,15 @@ def run():
         del X_train
         del y_train
 
-        (X_test, y_test, test_inputs, test_references, test_candidates) = \
-            get_test(pca, normalizer, test_input_size, test_sample_size, params)
-
+        X_test, y_test = get_test(test_data, pca, normalizer, params=params)
         test_classifier(classifier, X_test, y_test)
 
-        blue = evaluation.evaluation(test_inputs, test_references, test_candidates, classifier, normalizer, pca)
+        blue = evaluation.evaluation(test_inputs, test_references, test_candidates, classifier, normalizer, pca, params)
 
-        path = os.path.join(data.OUT_DIR, 'eval.out')
+        if not os.path.isdir(OUT_DIR):
+            os.makedirs(OUT_DIR)
+
+        path = os.path.join(OUT_DIR, 'eval.out')
         with open(path, "a") as eval_file:
             eval_file.write("%-30s , %0.10f , %4d , %8.2f , %8.2f , %4d\n" % (name, blue, feature_length, classification_time, pca_time, train_sample_size))
 

@@ -8,6 +8,7 @@ import metrics
 import random
 import sys
 import numpy as np
+import features
 
 
 def training_label(reference, candidate1, candidate2):
@@ -30,10 +31,22 @@ def feature_vector(input, candidate1, candidate2):
     return np.concatenate((input_features, candidate_features))
 
 
-def pro(inputs, references, candidates, sample_size=100):
+def training_label_and_feature_vector(input, reference, candidate1, candidate2, params=(False, False, False, False)):
+    input = features.input_features(input, params)
+    candidate1 = features.candidate_features(candidate1, params)
+    candidate2 = features.candidate_features(candidate2, params)
+
+    return training_label(reference, candidate1, candidate2), feature_vector(input, candidate1, candidate2)
+
+
+def pro(inputs, references, candidates, sample_size=100, params=(False, False, False, False), seed=None):
+
+    random.seed(seed)
+
+    (_, fs_example) = training_label_and_feature_vector(inputs[0], references[0], candidates[0][1], candidates[0][1], params)
 
     dem1 = len(inputs) * sample_size
-    dem2 = len(candidates[0][0][2]) + len(inputs[0][1])
+    dem2 = len(fs_example)
 
     x = np.empty((dem1, dem2), dtype=float)
     y = np.empty(dem1, dtype=int)
@@ -56,8 +69,10 @@ def pro(inputs, references, candidates, sample_size=100):
             while j1 == j2:
                 j2 = random.randint(0, len(candidate) - 1)
 
-            x[k] = feature_vector(inp, candidate[j1], candidate[j2])
-            y[k] = training_label(reference, candidate[j1], candidate[j2])
+            (ys, fs) = training_label_and_feature_vector(inp, reference, candidate[j1], candidate[j2], params)
+
+            x[k] = fs
+            y[k] = ys
 
             k += 1
 
