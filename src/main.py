@@ -129,18 +129,17 @@ def run():
         # ('svm-500-ex-pos-bigrams-pca',      100, 500, 100, True, True, True, False),
         # ('svm-500-representation-pca',      100, 500, 100, False, False, True, True),
         # ('svm-500-full-pca',                100, 500, 100, True, True, True, True),
-        ('svm-2900-full-pca',               100, 2900, 50, True, True, True, True),
         ('svm-2900-baseline',               0, 2900, 50, False, False, False, False),
         ('svm-2900-pos',                    0, 2900, 50, True, False, False, False),
         ('svm-2900-ex-pos',                 0, 2900, 50, True, True, False, False),
         ('svm-2900-pos-bigrams-pca',        100, 2900, 50, True, False, True, False),
         ('svm-2900-ex-pos-bigrams-pca',     100, 2900, 50, True, True, True, False),
         ('svm-2900-representation-pca',     100, 2900, 50, False, False, True, True),
-        # ('svm-2900-full-pca',               100, 2900, 50, True, True, True, True),
-        # ('svm-2900-pos-bigrams',            0, 2900, 50, True, False, True, False),
-        # ('svm-2900-ex-pos-bigrams',         0, 2900, 50, True, True, True, False),
-        # ('svm-2900-representation',         0, 2900, 50, False, False, True, True),
-        # ('svm-2900-full',                   0, 2900, 50, True, True, True, True),
+        ('svm-2900-full-pca',               100, 2900, 50, True, True, True, True),
+        ('svm-2900-pos-bigrams',            0, 2900, 50, True, False, True, False),
+        ('svm-2900-ex-pos-bigrams',         0, 2900, 50, True, True, True, False),
+        ('svm-2900-representation',         0, 2900, 50, False, False, True, True),
+        ('svm-2900-full',                   0, 2900, 50, True, True, True, True),
     ]
 
     # Preload test data into memory
