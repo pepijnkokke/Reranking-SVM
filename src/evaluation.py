@@ -75,7 +75,10 @@ def best_baseline(inputs, candidates):
     return sentences
 
 
-def evaluation(inputs, references, candidates, classifier, normalizer, pca, params):
+def evaluation(data, classifier, normalizer, pca, params):
+
+    (inputs, references, candidates) = data
+
     bleu_references = [[x] for x in references]
     bleu_hypotheses_baseline = best_baseline(inputs, candidates)
 

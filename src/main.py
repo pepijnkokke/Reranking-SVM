@@ -94,7 +94,7 @@ def get_dev_and_processing(n_pca=100, train_input_size=2900, train_sample_size=1
     return X_train, y_train, normalizer, pca, pca_time
 
 
-def get_test(test_data, pca, normalizer, test_sample_size=5, params=(False, False, False, False)):
+def get_test(test_data, pca, normalizer, test_sample_size=2, params=(False, False, False, False)):
 
     (test_inputs, test_references, test_candidates) = test_data
     (X_test, y_test) = pro.pro(test_inputs, test_references, test_candidates, test_sample_size, params, seed=10)
@@ -120,31 +120,30 @@ def run():
         # ('svm-100-ex-pos',                  0, 100, 200, True, True, False, False),
         # ('svm-100-pos-bigrams-pca',         100, 100, 200, True, False, True, False),
         # ('svm-100-ex-pos-bigrams-pca',      100, 100, 200, True, True, True, False),
-        # ('svm-100-representation-pca',      100, 100, 200, False, False, True, True),
+        # ('svm-100-representation-pca',      100, 100, 200, False, False, False, True),
         # ('svm-100-full-pca',                100, 100, 200, True, True, True, True),
         # ('svm-500-baseline',                0, 500, 100, False, False, False, False),
         # ('svm-500-pos',                     0, 500, 100, True, False, False, False),
         # ('svm-500-ex-pos',                  0, 500, 100, True, True, False, False),
         # ('svm-500-pos-bigrams-pca',         100, 500, 100, True, False, True, False),
         # ('svm-500-ex-pos-bigrams-pca',      100, 500, 100, True, True, True, False),
-        # ('svm-500-representation-pca',      100, 500, 100, False, False, True, True),
+        # ('svm-500-representation-pca',      100, 500, 100, False, False, False, True),
         # ('svm-500-full-pca',                100, 500, 100, True, True, True, True),
-        ('svm-2900-baseline',               0, 2900, 50, False, False, False, False),
-        ('svm-2900-pos',                    0, 2900, 50, True, False, False, False),
-        ('svm-2900-ex-pos',                 0, 2900, 50, True, True, False, False),
-        ('svm-2900-pos-bigrams-pca',        100, 2900, 50, True, False, True, False),
-        ('svm-2900-ex-pos-bigrams-pca',     100, 2900, 50, True, True, True, False),
-        ('svm-2900-representation-pca',     100, 2900, 50, False, False, True, True),
-        ('svm-2900-full-pca',               100, 2900, 50, True, True, True, True),
-        ('svm-2900-pos-bigrams',            0, 2900, 50, True, False, True, False),
-        ('svm-2900-ex-pos-bigrams',         0, 2900, 50, True, True, True, False),
-        ('svm-2900-representation',         0, 2900, 50, False, False, True, True),
-        ('svm-2900-full',                   0, 2900, 50, True, True, True, True),
+        ('svm-2900-full',                   0, 2900, 100, True, True, True, True),
+        ('svm-2900-baseline',               0, 2900, 100, False, False, False, False),
+        ('svm-2900-baseline-200',           0, 2900, 200, False, False, False, False),
+        ('svm-2900-baseline-300', 0, 2900, 200, False, False, False, False),
+        ('svm-2900-pos',                    0, 2900, 100, True, False, False, False),
+        ('svm-2900-ex-pos',                 0, 2900, 100, True, True, False, False),
+        # ('svm-2900-pos-bigrams-pca',        100, 2900, 100, True, False, True, False),
+        # ('svm-2900-ex-pos-bigrams-pca',     100, 2900, 100, True, True, True, False),
+        # ('svm-2900-representation-pca',     100, 2900, 100, False, False, True, True),
+        # ('svm-2900-full-pca',               100, 2900, 100, True, True, True, True),
+        ('svm-2900-pos-bigrams',            0, 2900, 100, True, False, True, False),
+        ('svm-2900-ex-pos-bigrams',         0, 2900, 100, True, True, True, False),
+        ('svm-2900-representation',         0, 2900, 100, False, False, False, True),
+        # ('svm-2900-full',                   0, 2900, 100, True, True, True, True),
     ]
-
-    # Preload test data into memory
-    test_data = data.load_test(2100)
-    (test_inputs, test_references, test_candidates) = test_data
 
     for name, n_pca, train_input_size, train_sample_size, pos, extended_pos, bigrams, vector in matrix:
 
@@ -165,10 +164,13 @@ def run():
         del X_train
         del y_train
 
+        # Preload test data into memory
+        test_data = data.load_test(2100)
+
         X_test, y_test = get_test(test_data, pca, normalizer, params=params)
         test_classifier(classifier, X_test, y_test)
 
-        blue = evaluation.evaluation(test_inputs, test_references, test_candidates, classifier, normalizer, pca, params)
+        blue = evaluation.evaluation(test_data, classifier, normalizer, pca, params)
 
         if not os.path.isdir(OUT_DIR):
             os.makedirs(OUT_DIR)
