@@ -4,6 +4,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import with_statement
 
+from time import time
+
 from nltk.translate.bleu_score import corpus_bleu
 from operator import itemgetter
 import numpy as np
@@ -16,6 +18,8 @@ def best_reranking(inputs, candidates, classifier, normalizer, pca, params):
     Returns a list of the best sentences according to the reranking
     Only the top sentence is returned
     """
+    t0 = time()
+
     sentences = []
     weights = np.array(classifier.coef_)
 
@@ -51,6 +55,9 @@ def best_reranking(inputs, candidates, classifier, normalizer, pca, params):
         sentences.append(target)
 
     print("\rReranking 100.00%")
+
+    reranking_time = (time() - t0)
+    print("done in %0.3fs" % reranking_time)
 
     return sentences
 
