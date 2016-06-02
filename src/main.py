@@ -132,7 +132,7 @@ def run():
         ('svm-2900-full',                   0, 2900, 100, True, True, True, True),
         ('svm-2900-baseline',               0, 2900, 100, False, False, False, False),
         ('svm-2900-baseline-200',           0, 2900, 200, False, False, False, False),
-        ('svm-2900-baseline-300', 0, 2900, 200, False, False, False, False),
+        ('svm-2900-baseline-300',           0, 2900, 300, False, False, False, False),
         ('svm-2900-pos',                    0, 2900, 100, True, False, False, False),
         ('svm-2900-ex-pos',                 0, 2900, 100, True, True, False, False),
         # ('svm-2900-pos-bigrams-pca',        100, 2900, 100, True, False, True, False),
@@ -142,7 +142,7 @@ def run():
         ('svm-2900-pos-bigrams',            0, 2900, 100, True, False, True, False),
         ('svm-2900-ex-pos-bigrams',         0, 2900, 100, True, True, True, False),
         ('svm-2900-representation',         0, 2900, 100, False, False, False, True),
-        # ('svm-2900-full',                   0, 2900, 100, True, True, True, True),
+        ('svm-2900-full-200',                   0, 2900, 200, True, True, True, True),
     ]
 
     for name, n_pca, train_input_size, train_sample_size, pos, extended_pos, bigrams, vector in matrix:
