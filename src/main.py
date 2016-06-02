@@ -115,34 +115,34 @@ def get_test(test_data, pca, normalizer, test_sample_size=2, params=(False, Fals
 def run():
 
     matrix = [
-        # ('svm-100-baseline',                0, 100, 200, False, False, False, False),
-        # ('svm-100-pos',                     0, 100, 200, True, False, False, False),
-        # ('svm-100-ex-pos',                  0, 100, 200, True, True, False, False),
-        # ('svm-100-pos-bigrams-pca',         100, 100, 200, True, False, True, False),
-        # ('svm-100-ex-pos-bigrams-pca',      100, 100, 200, True, True, True, False),
-        # ('svm-100-representation-pca',      100, 100, 200, False, False, False, True),
-        # ('svm-100-full-pca',                100, 100, 200, True, True, True, True),
-        # ('svm-500-baseline',                0, 500, 100, False, False, False, False),
-        # ('svm-500-pos',                     0, 500, 100, True, False, False, False),
-        # ('svm-500-ex-pos',                  0, 500, 100, True, True, False, False),
-        # ('svm-500-pos-bigrams-pca',         100, 500, 100, True, False, True, False),
-        # ('svm-500-ex-pos-bigrams-pca',      100, 500, 100, True, True, True, False),
-        # ('svm-500-representation-pca',      100, 500, 100, False, False, False, True),
-        # ('svm-500-full-pca',                100, 500, 100, True, True, True, True),
+        ('svm-100-baseline',                0, 100, 200, False, False, False, False),
+        ('svm-100-pos',                     0, 100, 200, True, False, False, False),
+        ('svm-100-ex-pos',                  0, 100, 200, True, True, False, False),
+        ('svm-100-pos-bigrams',             0, 100, 200, True, False, True, False),
+        ('svm-100-ex-pos-bigrams',          0, 100, 200, True, True, True, False),
+        ('svm-100-representation',          0, 100, 200, False, False, False, True),
+        ('svm-100-full',                    0, 100, 200, True, True, True, True),
+        ('svm-500-baseline',                0, 500, 100, False, False, False, False),
+        ('svm-500-pos',                     0, 500, 100, True, False, False, False),
+        ('svm-500-ex-pos',                  0, 500, 100, True, True, False, False),
+        ('svm-500-pos-bigrams',             0, 500, 100, True, False, True, False),
+        ('svm-500-ex-pos-bigrams',          0, 500, 100, True, True, True, False),
+        ('svm-500-representation',          0, 500, 100, False, False, False, True),
+        ('svm-500-full',                    0, 500, 100, True, True, True, True),
         ('svm-2900-full',                   0, 2900, 100, True, True, True, True),
         ('svm-2900-baseline',               0, 2900, 100, False, False, False, False),
         ('svm-2900-baseline-200',           0, 2900, 200, False, False, False, False),
         ('svm-2900-baseline-300',           0, 2900, 300, False, False, False, False),
         ('svm-2900-pos',                    0, 2900, 100, True, False, False, False),
         ('svm-2900-ex-pos',                 0, 2900, 100, True, True, False, False),
-        # ('svm-2900-pos-bigrams-pca',        100, 2900, 100, True, False, True, False),
-        # ('svm-2900-ex-pos-bigrams-pca',     100, 2900, 100, True, True, True, False),
-        # ('svm-2900-representation-pca',     100, 2900, 100, False, False, True, True),
-        # ('svm-2900-full-pca',               100, 2900, 100, True, True, True, True),
+        ('svm-2900-pos-bigrams-pca',        0, 2900, 100, True, False, True, False),
+        ('svm-2900-ex-pos-bigrams-pca',     0, 2900, 100, True, True, True, False),
+        ('svm-2900-representation-pca',     0, 2900, 100, False, False, True, True),
+        ('svm-2900-full-pca',               0, 2900, 100, True, True, True, True),
         ('svm-2900-pos-bigrams',            0, 2900, 100, True, False, True, False),
         ('svm-2900-ex-pos-bigrams',         0, 2900, 100, True, True, True, False),
         ('svm-2900-representation',         0, 2900, 100, False, False, False, True),
-        ('svm-2900-full-200',                   0, 2900, 200, True, True, True, True),
+        ('svm-2900-full-200',               0, 2900, 200, True, True, True, True),
     ]
 
     for name, n_pca, train_input_size, train_sample_size, pos, extended_pos, bigrams, vector in matrix:
@@ -150,6 +150,7 @@ def run():
         print("---------------")
         print(name)
         print("---------------")
+        t0 = time()
 
         params = (pos, extended_pos, bigrams, vector)
 
@@ -172,13 +173,15 @@ def run():
 
         blue_baseline, blue, blue_diff = evaluation.evaluation(test_data, classifier, normalizer, pca, params)
 
+        complete_time = (time() - t0)
+        print("Completed in %0.3fs" % classification_time)
+
         if not os.path.isdir(OUT_DIR):
             os.makedirs(OUT_DIR)
 
         path = os.path.join(OUT_DIR, 'eval.out')
         with open(path, "a") as eval_file:
-            eval_file.write("%-30s , %0.10f , %0.10f, %0.10f , %4d , %8.2f , %8.2f , %4d\n" % (name, blue_baseline, blue, blue_diff, feature_length, classification_time, pca_time, train_sample_size))
-
+            eval_file.write("%-30s , %0.10f , %0.10f, %0.10f , %4d , %8.2f , %8.2f , %8.2f , %4d\n" % (name, blue_baseline, blue, blue_diff, feature_length, classification_time, pca_time, complete_time, train_sample_size))
 
 if __name__ == "__main__":
     run()
