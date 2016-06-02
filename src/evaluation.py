@@ -16,6 +16,7 @@ def best_reranking(inputs, candidates, classifier, normalizer, pca):
     Only the top sentence is returned
     """
     sentences = []
+    weights = np.array(classifier.coef_)
 
     for i, input in enumerate(inputs):
 
@@ -24,12 +25,15 @@ def best_reranking(inputs, candidates, classifier, normalizer, pca):
 
         results = []
 
+        (_, input_features) = input
+        input_features = np.array(input_features)
+
         for candidate in candidates[i]:
 
             (_, target, candidate_features) = candidate
-            (_, input_features) = input
+            candidate_features = np.array(candidate_features)
 
-            feature_vector = [np.concatenate((np.array(input_features), np.array(candidate_features)))]
+            feature_vector = [np.concatenate((input_features, candidate_features))]
 
             if normalizer is not None:
                 feature_vector = normalizer.transform(feature_vector)
@@ -37,7 +41,7 @@ def best_reranking(inputs, candidates, classifier, normalizer, pca):
             if pca is not None:
                 feature_vector = pca.transform(feature_vector)
 
-            score = np.dot(classifier.coef_, np.transpose(feature_vector))[0][0]
+            score = np.dot(weights, np.transpose(feature_vector))[0][0]
 
             result = (score, target)
             results.append(result)
