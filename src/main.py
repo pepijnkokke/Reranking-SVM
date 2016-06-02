@@ -141,6 +141,9 @@ def run():
         ('svm-2900-full-200',               0, 2900, 200, True, True, True, True),
     ]
 
+    # Preload test data into memory
+    test_data = data.load_test(2100)
+
     for name, n_pca, train_input_size, train_sample_size, pos, extended_pos, bigrams, vector in matrix:
 
         print("---------------")
@@ -160,9 +163,6 @@ def run():
         # clear some memory
         del X_train
         del y_train
-
-        # Preload test data into memory
-        test_data = data.load_test(2100)
 
         X_test, y_test = get_test(test_data, pca, normalizer, params=params)
         test_classifier(classifier, X_test, y_test)
