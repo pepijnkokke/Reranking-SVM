@@ -53,13 +53,16 @@ def train_classifier(x, y):
     return classifier, classification_time
 
 
-def test_classifier(classifier, test_x, test_y):
+def test_classifier(classifier, test_x, test_y, train_x, train_y):
 
     pred_y = classifier.predict(test_x)
-    score = metrics.accuracy_score(test_y, pred_y)
-    print('Score on testing: %0.5f' % score)
+    test_score = metrics.accuracy_score(test_y, pred_y)
+    print('Score on testing: %0.5f' % test_score)
 
-    # print(metrics.classification_report(test_y, pred_y))
+    pred_y = classifier.predict(train_x)
+    train_score = metrics.accuracy_score(train_y, pred_y)
+
+    return test_score, train_score
 
 
 def get_dev_and_processing(n_pca=100, train_input_size=2900, train_sample_size=1000, params=(False, False, False, False)):
@@ -179,7 +182,7 @@ def run():
         del y_train
 
         X_test, y_test = get_test(test_data, pca, normalizer, params=params)
-        test_classifier(classifier, X_test, y_test)
+        test_score, train_score = test_classifier(classifier, X_test, y_test, X_train, y_train)
 
         limit = 1000
         if train_input_size == test_size:
@@ -196,7 +199,7 @@ def run():
 
         path = os.path.join(OUT_DIR, 'eval.out')
         with open(path, "a") as eval_file:
-            eval_file.write("%-30s , %0.10f , %0.10f, %0.10f , %4d , %8.2f , %8.2f , %8.2f , %4d\n" % (name, blue_baseline, blue, blue_diff, feature_length, classification_time, pca_time, complete_time, train_sample_size))
+            eval_file.write("%-30s , %0.10f , %0.10f , %0.10f , %4d , %8.2f , %8.2f , %8.2f , %4d , %0.10f , %0.10f\n" % (name, blue_baseline, blue, blue_diff, feature_length, classification_time, pca_time, complete_time, train_sample_size, test_score, train_score))
 
         path = os.path.join(OUT_DIR, '%s.out' % name)
         with open(path, "w") as file:

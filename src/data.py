@@ -79,7 +79,7 @@ def load_dev(limit=2900):
     return read(DEV_EN, DEV_DE, DEV_BEST, limit)
 
 
-def load_test(limit=2100):
+def load_test(limit):
     print("Loading testing data")
     return read(TEST_EN, TEST_DE, TEST_BEST, limit)
 
