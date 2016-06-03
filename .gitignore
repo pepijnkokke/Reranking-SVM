@@ -5,3 +5,4 @@ data/nlp2-test.1000best.gz
 __pycache__
 .ipynb_checkpoints/
 data/
+multeval/
