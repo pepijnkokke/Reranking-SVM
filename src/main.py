@@ -177,12 +177,12 @@ def run():
 
         classifier, classification_time = train_classifier(X_train, y_train)
 
+        X_test, y_test = get_test(test_data, pca, normalizer, params=params)
+        test_score, train_score = test_classifier(classifier, X_test, y_test, X_train, y_train)
+
         # clear some memory
         del X_train
         del y_train
-
-        X_test, y_test = get_test(test_data, pca, normalizer, params=params)
-        test_score, train_score = test_classifier(classifier, X_test, y_test, X_train, y_train)
 
         limit = 1000
         if train_input_size == test_size:
