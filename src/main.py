@@ -189,7 +189,7 @@ def run():
         if train_input_size == test_size:
             limit = test_size
 
-        blue_baseline, blue, blue_diff, sentences, sentence2 = \
+        blue_baseline, blue, blue_diff, sentences = \
             evaluation.evaluation(test_data, classifier, normalizer, pca, params, limit)
 
         complete_time = (time() - t0)
@@ -205,10 +205,6 @@ def run():
         path = os.path.join(OUT_DIR, '%s.out' % name)
         with open(path, "w") as file:
             file.write('\n'.join(sentences))
-
-        path = os.path.join(OUT_DIR, 'baseline.out')
-        with open(path, "w") as file:
-            file.write('\n'.join(sentence2))
 
 if __name__ == "__main__":
     run()
