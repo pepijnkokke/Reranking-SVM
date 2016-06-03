@@ -27,13 +27,13 @@ def input_features(line, params=(False, False, False, False)):
     (pos, extended_pos, bigrams, include_vector) = params
 
     if pos:
-        pos_vector = pos_feature(decoded_source, de_nlp(), simple_pos=not extended_pos)
+        pos_vector     = pos_feature(decoded_source, en_nlp(), simple_pos=not extended_pos)
         feature_vector = feature_vector + pos_vector
     if bigrams:
-        bigrams_vector = pos_feature(decoded_source, de_nlp(), n=2)
+        bigrams_vector = pos_feature(decoded_source, en_nlp(), n=2)
         feature_vector = feature_vector + bigrams_vector
     if include_vector:
-        embedding = de_nlp()(decoded_source).vector.tolist()
+        embedding      = en_nlp()(decoded_source).vector.tolist()
         feature_vector = feature_vector + embedding
 
     return source, feature_vector
