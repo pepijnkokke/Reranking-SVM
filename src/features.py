@@ -9,12 +9,14 @@ import itertools
 import collections
 import spacy
 import re
+import math
+
 
 _en_nlp = 0
 _de_nlp = 0
 
 
-def input_features(line, params=(False, False, False, False)):
+def input_features(line, params=(False, False, False, False, False)):
     """
     Parse a line from the inputs file into a input sentence and a feature vector
     """
@@ -24,22 +26,26 @@ def input_features(line, params=(False, False, False, False)):
 
     feature_vector = []
 
-    (pos, extended_pos, bigrams, include_vector) = params
+    (include_pos, extended_pos, include_bigrams, include_embedding, _) = params
 
-    if pos:
+    if include_pos:
         pos_vector     = pos_feature(decoded_source, en_nlp(), simple_pos=not extended_pos)
         feature_vector = feature_vector + pos_vector
-    if bigrams:
+    if include_bigrams:
         bigrams_vector = pos_feature(decoded_source, en_nlp(), n=2)
         feature_vector = feature_vector + bigrams_vector
-    if include_vector:
+    if include_embedding:
         embedding      = en_nlp()(decoded_source).vector.tolist()
         feature_vector = feature_vector + embedding
 
     return source, feature_vector
 
 
-def candidate_features(line, params=(False, False, False, False)):
+def sigmoid(x):
+  return 1 / (1 + math.exp(-x))
+
+
+def candidate_features(line, params=(False, False, False, False, False)):
     """
     Parse a line from the candidate file into a target sentence and a feature vector
     """
@@ -50,15 +56,23 @@ def candidate_features(line, params=(False, False, False, False)):
     features_from_map = sum(feature_map.values(), [])
     feature_vector = [score] + features_from_map
 
-    (pos, extended_pos, bigrams, include_vector) = params
+    (include_pos, extended_pos, include_bigrams, include_embedding, include_combinations) = params
 
-    if pos:
+    if include_combinations:
+        per_tau = feature_map['PermutationExpectedKendallTau0']
+        target_lm = feature_map['TargetLM'][0]
+        source_lm = feature_map['SourceLM'][0]
+        tm0 = feature_map['TranslationModel0']
+        per_tau = [sigmoid(x) for x in per_tau]
+        tm0 = reduce(lambda x, y: x * y, tm0)
+        feature_vector = feature_vector + [target_lm ** 2, source_lm ** 2, tm0] + per_tau
+    if include_pos:
         pos_vector = pos_feature(decoded_target, de_nlp(), simple_pos=not extended_pos)
         feature_vector = feature_vector + pos_vector
-    if bigrams:
+    if include_bigrams:
         bigrams_vector = pos_feature(decoded_target, de_nlp(), n=2)
         feature_vector = feature_vector + bigrams_vector
-    if include_vector:
+    if include_embedding:
         embedding = de_nlp()(decoded_target).vector.tolist()
         feature_vector = feature_vector + embedding
 
@@ -162,10 +176,7 @@ def pos_feature(s, nlp, n=1, simple_pos=True):
     pos_count = collections.Counter(pos_tags)
 
     def scalar(tag):
-        if pos_count[tag] > 0:
-            return 1
-        else:
-            return -1
+        return pos_count[tag]
 
     pos_count = map(lambda tag: scalar(tag), pos_sible)
     return pos_count

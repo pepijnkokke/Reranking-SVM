@@ -120,49 +120,52 @@ def run():
     test_size = 10
 
     matrix = [
-        # name                              # n_pca # corpus size # sample size # pos # ex pos # bigrams # embeddings
-        ('svm-test',                        0, test_size, test_size, False, False, False, False),
-        ('svm-100-baseline',                0, 100, 200, False, False, False, False),
-        ('svm-100-baseline-500',            0, 100, 500, False, False, False, False),
-        ('svm-100-baseline-1000',           0, 100, 1000, False, False, False, False),
-        ('svm-100-pos',                     0, 100, 200, True, False, False, False),
-        ('svm-100-pos-500',                     0, 100, 500, True, False, False, False),
-        ('svm-100-pos-1000',                    0, 100, 1000, True, False, False, False),
-        ('svm-100-ex-pos',                  0, 100, 200, True, True, False, False),
-        ('svm-100-pos-bigrams',             0, 100, 200, True, False, True, False),
-        ('svm-100-ex-pos-bigrams',          0, 100, 200, True, True, True, False),
-        ('svm-100-representation',          0, 100, 200, False, False, False, True),
-        ('svm-100-full',                    0, 100, 200, True, True, True, True),
-        ('svm-500-baseline',                0, 500, 100, False, False, False, False),
-        ('svm-500-pos',                     0, 500, 100, True, False, False, False),
-        ('svm-500-ex-pos',                  0, 500, 100, True, True, False, False),
-        ('svm-500-pos-bigrams',             0, 500, 100, True, False, True, False),
-        ('svm-500-ex-pos-bigrams',          0, 500, 100, True, True, True, False),
-        ('svm-500-representation',          0, 500, 100, False, False, False, True),
-        ('svm-500-full',                    0, 500, 100, True, True, True, True),
-        ('svm-2900-full',                   0, 2900, 100, True, True, True, True),
-        ('svm-2900-baseline',               0, 2900, 100, False, False, False, False),
-        ('svm-2900-baseline-200',           0, 2900, 200, False, False, False, False),
-        ('svm-2900-baseline-300',           0, 2900, 300, False, False, False, False),
-        ('svm-2900-pos',                    0, 2900, 100, True, False, False, False),
-        ('svm-2900-ex-pos',                 0, 2900, 100, True, True, False, False),
-        ('svm-2900-pos-bigrams',            0, 2900, 100, True, False, True, False),
-        ('svm-2900-ex-pos-bigrams',         0, 2900, 100, True, True, True, False),
-        ('svm-2900-representation',         0, 2900, 100, False, False, False, True),
-        ('svm-2900-full-200',               0, 2900, 200, True, True, True, True),
+        # name                              # n_pca # corpus size # sample size # pos # ex pos # bigrams # embeddings # combinations
+        ('svm-test',                        0, test_size, test_size, False, False, False, False, True),
+        ('svm-100-basic',                   0, 100, 200, False, False, False, False, False),
+        ('svm-100-basic-500',               0, 100, 500, False, False, False, False, False),
+        ('svm-100-basic-1000',              0, 100, 1000, False, False, False, False, False),
+        ('svm-100-combinations',            0, 100, 200, True, False, False, False, True),
+        ('svm-100-pos',                     0, 100, 200, True, False, False, False, False),
+        ('svm-100-pos-500',                 0, 100, 500, True, False, False, False, False),
+        ('svm-100-pos-1000',                0, 100, 1000, True, False, False, False, False),
+        ('svm-100-ex-pos',                  0, 100, 200, True, True, False, False, False),
+        ('svm-100-pos-bigrams',             0, 100, 200, True, False, True, False, False),
+        ('svm-100-ex-pos-bigrams',          0, 100, 200, True, True, True, False, False),
+        ('svm-100-embedding',               0, 100, 200, False, False, False, True, False),
+        ('svm-100-full',                    0, 100, 200, True, True, True, True, True),
+        ('svm-500-basic',                   0, 500, 100, False, False, False, False, False),
+        ('svm-500-combinations',            0, 500, 100, False, False, False, False, True),
+        ('svm-500-pos',                     0, 500, 100, True, False, False, False, False),
+        ('svm-500-ex-pos',                  0, 500, 100, True, True, False, False, False),
+        ('svm-500-pos-bigrams',             0, 500, 100, True, False, True, False, False),
+        ('svm-500-ex-pos-bigrams',          0, 500, 100, True, True, True, False, False),
+        ('svm-500-embedding',               0, 500, 100, False, False, False, True, False),
+        ('svm-500-full',                    0, 500, 100, True, True, True, True, True),
+        ('svm-2900-full',                   0, 2900, 100, True, True, True, True, True),
+        ('svm-2900-basic',                  0, 2900, 100, False, False, False, False, False),
+        ('svm-2900-basic-200',              0, 2900, 200, False, False, False, False, False),
+        ('svm-2900-basic-300',              0, 2900, 300, False, False, False, False, False),
+        ('svm-2900-combinations',           0, 2900, 100, True, False, False, False, True),
+        ('svm-2900-pos',                    0, 2900, 100, True, False, False, False, False),
+        ('svm-2900-ex-pos',                 0, 2900, 100, True, True, False, False, False),
+        ('svm-2900-pos-bigrams',            0, 2900, 100, True, False, True, False, False),
+        ('svm-2900-ex-pos-bigrams',         0, 2900, 100, True, True, True, False, False),
+        ('svm-2900-embedding',              0, 2900, 100, False, False, False, True, False),
+        ('svm-2900-full-200',               0, 2900, 200, True, True, True, True, True),
     ]
 
     # Preload test data into memory
     test_data = data.load_test(2100)
 
-    for name, n_pca, train_input_size, train_sample_size, pos, extended_pos, bigrams, vector in matrix:
+    for name, n_pca, train_input_size, train_sample_size, pos, extended_pos, bigrams, embeddings, combinations in matrix:
 
         print("---------------")
         print(name)
         print("---------------")
         t0 = time()
 
-        params = (pos, extended_pos, bigrams, vector)
+        params = (pos, extended_pos, bigrams, embeddings, combinations)
 
         (X_train, y_train, normalizer, pca, pca_time) = \
             get_dev_and_processing(n_pca, train_input_size, train_sample_size, params)
