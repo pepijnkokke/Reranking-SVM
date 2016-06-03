@@ -61,7 +61,7 @@ def test_classifier(classifier, test_x, test_y, train_x, train_y):
 
     pred_y = classifier.predict(train_x)
     train_score = metrics.accuracy_score(train_y, pred_y)
-    print('Score on training: %0.5f' % test_score)
+    print('Score on training: %0.5f' % train_score)
 
     return test_score, train_score
 
