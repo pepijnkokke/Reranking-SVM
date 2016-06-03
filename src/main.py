@@ -18,6 +18,7 @@ import pro
 import evaluation
 import os
 
+
 OUT_DIR = os.path.abspath(os.path.join('..', 'out'))
 
 
@@ -200,5 +201,3 @@ def run():
 
 if __name__ == "__main__":
     run()
-
-
