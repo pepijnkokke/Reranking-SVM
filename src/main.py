@@ -164,47 +164,51 @@ def run():
 
     for name, n_pca, train_input_size, train_sample_size, pos, extended_pos, bigrams, embeddings, combinations in matrix:
 
-        print("---------------")
-        print(name)
-        print("---------------")
-        t0 = time()
+        for i in range(0, 5):
 
-        params = (pos, extended_pos, bigrams, embeddings, combinations)
+            name = str(i) + '-' + name
 
-        (X_train, y_train, normalizer, pca, pca_time) = \
-            get_dev_and_processing(n_pca, train_input_size, train_sample_size, params)
+            print("---------------")
+            print(name)
+            print("---------------")
+            t0 = time()
 
-        feature_length = len(X_train[0])
+            params = (pos, extended_pos, bigrams, embeddings, combinations)
 
-        classifier, classification_time = train_classifier(X_train, y_train)
+            (X_train, y_train, normalizer, pca, pca_time) = \
+                get_dev_and_processing(n_pca, train_input_size, train_sample_size, params)
 
-        X_test, y_test = get_test(test_data, pca, normalizer, params=params)
-        test_score, train_score = test_classifier(classifier, X_test, y_test, X_train, y_train)
+            feature_length = len(X_train[0])
 
-        # clear some memory
-        del X_train
-        del y_train
+            classifier, classification_time = train_classifier(X_train, y_train)
 
-        limit = 1000
-        if train_input_size == test_size:
-            limit = test_size
+            X_test, y_test = get_test(test_data, pca, normalizer, params=params)
+            test_score, train_score = test_classifier(classifier, X_test, y_test, X_train, y_train)
 
-        blue_baseline, blue, blue_diff, sentences = \
-            evaluation.evaluation(test_data, classifier, normalizer, pca, params, limit)
+            # clear some memory
+            del X_train
+            del y_train
 
-        complete_time = (time() - t0)
-        print("Completed in %0.3fs" % complete_time)
+            limit = 1000
+            if train_input_size == test_size:
+                limit = test_size
 
-        if not os.path.isdir(OUT_DIR):
-            os.makedirs(OUT_DIR)
+            blue_baseline, blue, blue_diff, sentences = \
+                evaluation.evaluation(test_data, classifier, normalizer, pca, params, limit)
 
-        path = os.path.join(OUT_DIR, 'eval.out')
-        with open(path, "a") as eval_file:
-            eval_file.write("%-30s , %0.10f , %0.10f , %0.10f , %4d , %8.2f , %8.2f , %8.2f , %4d , %0.10f , %0.10f\n" % (name, blue_baseline, blue, blue_diff, feature_length, classification_time, pca_time, complete_time, train_sample_size, test_score, train_score))
+            complete_time = (time() - t0)
+            print("Completed in %0.3fs" % complete_time)
 
-        path = os.path.join(OUT_DIR, '%s.out' % name)
-        with open(path, "w") as file:
-            file.write('\n'.join(sentences))
+            if not os.path.isdir(OUT_DIR):
+                os.makedirs(OUT_DIR)
+
+            path = os.path.join(OUT_DIR, 'eval.out')
+            with open(path, "a") as eval_file:
+                eval_file.write("%-30s , %0.10f , %0.10f , %0.10f , %4d , %8.2f , %8.2f , %8.2f , %4d , %0.10f , %0.10f\n" % (name, blue_baseline, blue, blue_diff, feature_length, classification_time, pca_time, complete_time, train_sample_size, test_score, train_score))
+
+            path = os.path.join(OUT_DIR, '%s.out' % name)
+            with open(path, "w") as file:
+                file.write('\n'.join(sentences))
 
 if __name__ == "__main__":
     run()
