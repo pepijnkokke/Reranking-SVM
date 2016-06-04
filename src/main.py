@@ -162,11 +162,11 @@ def run():
     # Preload test data into memory
     test_data = data.load_test(2100)
 
-    for name, n_pca, train_input_size, train_sample_size, pos, extended_pos, bigrams, embeddings, combinations in matrix:
+    for name1, n_pca, train_input_size, train_sample_size, pos, extended_pos, bigrams, embeddings, combinations in matrix:
 
         for i in range(0, 5):
 
-            name = str(i) + '-' + name
+            name = str(i) + '-' + name1
 
             print("---------------")
             print(name)
