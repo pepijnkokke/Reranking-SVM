@@ -36,6 +36,3 @@ pip install msgpack-python
 python -m spacy.en.download
 python -m spacy.de.download
 ```
-
-Then just run `jupyter notebook` to start the notebook.
-
