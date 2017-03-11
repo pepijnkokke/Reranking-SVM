@@ -6,8 +6,8 @@ We will be usinga linear classifier to rank translations that came out of a phra
 Other assignments
 ------
 
-* Find our [IBM Models repository here](https://github.com/pepijnkokke/IBM-SMT)
-* Find our [Phrase-Based MT repository here](https://github.com/pepijnkokke/Phrase-Based-Translation)
+* Find our [IBM Models repository here](https://github.com/pepijnkokke/UvA-MT1-IBM)
+* Find our [Phrase-Based MT repository here](https://github.com/pepijnkokke/UvA-MT2-PBT)
 
 Getting started
 ------
